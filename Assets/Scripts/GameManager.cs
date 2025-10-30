@@ -6,7 +6,6 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private List<movimientos> fennecs;
 
     [Header("Ui Objects")]
-    [SerializeField] private GameObject botonJugar;
 
     [Header("Configuración de Dificultad")]
     [SerializeField] private int maxFennecsActivos = 3;
@@ -22,7 +21,6 @@ public class GameManager : MonoBehaviour {
     private float timerSpawn = 0f;
 
     public void empezarPartida() {
-        botonJugar.SetActive(false);
 
         for(int i = 0; i < fennecs.Count; i++) {
             fennecs[i].esconder();
@@ -40,13 +38,11 @@ public class GameManager : MonoBehaviour {
 
     public void GameOver(int tipo) {
         jugando = false;
-        botonJugar.SetActive(true);
 
         for(int i = 0; i < fennecs.Count; i++) {
             fennecs[i].DetenerJuego();
         }
     }
-
     public void aumentarPuntaje(int indiceFennec) {
         puntaje += 1;
         actualizarTextoPuntaje();
@@ -91,5 +87,10 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
+    }
+
+    // Inicia la partida automáticamente al cargar la escena (se activa cuando la escena 'a' se abre desde el MainMenu).
+    void Start() {
+        empezarPartida();
     }
 }
