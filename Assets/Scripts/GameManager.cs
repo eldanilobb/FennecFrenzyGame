@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
     [SerializeField] private List<movimientos> fennecs;
@@ -13,12 +14,19 @@ public class GameManager : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI textoPuntaje;
     [SerializeField] private TextMeshProUGUI textoTiempo;
 
+    [Header("Pantalla Final UI")]
+    [SerializeField] private GameObject panelFinPartida;
+    [SerializeField] private TextMeshProUGUI textoPuntajeFinal;
+
+    [Header("Variables")]
     private float tiempoInicio = 60f;
     private float tiempoRestante;
     private HashSet<movimientos> fennecsActuales = new HashSet<movimientos>();
-    private int puntaje;
+    public int puntaje;
     private bool jugando = false;
     private float timerSpawn = 0f;
+    private int puntajeFinal;
+    
 
     public void empezarPartida() {
 
@@ -42,7 +50,21 @@ public class GameManager : MonoBehaviour {
         for(int i = 0; i < fennecs.Count; i++) {
             fennecs[i].DetenerJuego();
         }
+        puntajeFinal = puntaje;
+        mostrarGameOver();
     }
+
+    private void mostrarGameOver(){
+        if (panelFinPartida != null){
+            panelFinPartida.SetActive(true);
+            textoPuntajeFinal.text = "Puntaje final: " + puntajeFinal;
+        }
+    }
+
+    public void IrAlMenu() {
+        SceneManager.LoadScene("MainMenu"); 
+    }
+
     public void aumentarPuntaje(int indiceFennec) {
         puntaje += 1;
         actualizarTextoPuntaje();
@@ -91,6 +113,9 @@ public class GameManager : MonoBehaviour {
 
     // Inicia la partida automáticamente al cargar la escena (se activa cuando la escena 'a' se abre desde el MainMenu).
     void Start() {
+        if (panelFinPartida != null){
+        panelFinPartida.SetActive(false);
+        }
         empezarPartida();
     }
 }
