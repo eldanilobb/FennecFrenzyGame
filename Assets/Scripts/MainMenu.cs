@@ -1,36 +1,39 @@
 using System.Collections;
-
 using System.Collections.Generic;
-
 using UnityEngine;
-
 using UnityEngine.SceneManagement;
+using TMPro;
 
+public class MainMenu : MonoBehaviour {
 
+    [SerializeField] private TextMeshProUGUI textoMonedasMenu;
 
-public class MainMenu : MonoBehaviour
+    private void OnEnable() {
+        MostrarMonedasAcumuladas();
+    }
 
-{
+    private void MostrarMonedasAcumuladas() {
 
-    public void PlayGame()
-
-    {
-
+        int monedasTotales = PlayerPrefs.GetInt("MonedasTotales", 0);
         
-        SceneManager.LoadSceneAsync("a");
-
+        if (textoMonedasMenu != null) {
+            textoMonedasMenu.text = "Monedas: " + monedasTotales;
+        }
     }
 
 
+    public void PlayGame(){
+        
+        SceneManager.LoadSceneAsync("tutorial");
 
-    public void QuitGame()
+    }
 
-    {
+    public void QuitGame(){
 
         Application.Quit();
 
     }
 
-    
+
 
 }

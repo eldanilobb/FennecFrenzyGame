@@ -77,6 +77,7 @@ public class movimientos : MonoBehaviour
     }
 
     private void OnMouseDown() {
+        if(GameManager.juegopausado){return;}
         if(golpeable) {
             spriteVisible.sprite = FENNECCGOLPEADO;
             StopAllCoroutines();

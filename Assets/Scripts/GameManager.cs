@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour {
     [Header("Pantalla Final UI")]
     [SerializeField] private GameObject panelFinPartida;
     [SerializeField] private TextMeshProUGUI textoPuntajeFinal;
+    [SerializeField] private TextMeshProUGUI textoMonedasGanadas;
 
     [Header("Variables")]
     private float tiempoInicio = 60f;
@@ -25,8 +26,10 @@ public class GameManager : MonoBehaviour {
     public int puntaje;
     private bool jugando = false;
     private float timerSpawn = 0f;
-    private int puntajeFinal;
-    
+    private int puntajeFinal = 0;
+    public GameObject menuPausa;
+    public static bool juegopausado = false;
+    private int monedas; 
 
     public void empezarPartida() {
 
@@ -44,20 +47,56 @@ public class GameManager : MonoBehaviour {
         timerSpawn = 0f;
     }
 
-    public void GameOver(int tipo) {
+    public void gameOver(int tipo) {
+
         jugando = false;
 
         for(int i = 0; i < fennecs.Count; i++) {
             fennecs[i].DetenerJuego();
         }
         puntajeFinal = puntaje;
+        monedas = calcularMonedas(puntajeFinal);
+        guardarMonedas(monedas);
         mostrarGameOver();
     }
 
+    private int calcularMonedas(int puntos) {
+
+        int monedasBase = Mathf.FloorToInt(puntos / 10f);
+    
+        if (puntos >= 100) {
+            monedasBase += 20; 
+        }
+        if (puntos >= 200) {
+            monedasBase += 30;
+        }
+    
+        return monedasBase;
+    }
+
+    private void guardarMonedas(int monedas) {
+
+        int monedasTotales = PlayerPrefs.GetInt("MonedasTotales", 0);
+        monedasTotales += monedas;
+        PlayerPrefs.SetInt("MonedasTotales", monedasTotales);
+        PlayerPrefs.Save();
+    
+    }
+
+    public int ObtenerMonedasTotales() {
+        return PlayerPrefs.GetInt("MonedasTotales", 0);
+    }
+
+
     private void mostrarGameOver(){
+
         if (panelFinPartida != null){
             panelFinPartida.SetActive(true);
             textoPuntajeFinal.text = "Puntaje final: " + puntajeFinal;
+            
+            if (textoMonedasGanadas != null) {
+            textoMonedasGanadas.text = "Monedas ganadas: " + monedas;
+            }
         }
     }
 
@@ -65,18 +104,38 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene("MainMenu"); 
     }
 
+    public void pausar(){
+
+        if(!jugando){return;}
+
+        Time.timeScale = 0;
+        juegopausado = true;
+        menuPausa.SetActive(true);
+    }
+
+    public void reanudar() {
+
+        if(!jugando){return;}
+        Time.timeScale = 1;
+        juegopausado = false;
+        menuPausa.SetActive(false);
+    }
+
     public void aumentarPuntaje(int indiceFennec) {
+
         puntaje += 1;
         actualizarTextoPuntaje();
     }
 
      private void actualizarTextoPuntaje() {
+
         if(textoPuntaje != null) {
             textoPuntaje.text = "Puntaje " + puntaje;
         }
     }
 
     private void actualizarTextoTiempo() {
+
         if(textoTiempo != null) {
             int minutos = (int)tiempoRestante / 60;
             int segundos = (int)tiempoRestante % 60;
@@ -89,6 +148,8 @@ public class GameManager : MonoBehaviour {
     }
 
     void Update() {
+
+        if (juegopausado){return;}
         if(jugando) {
             tiempoRestante -= Time.deltaTime;
             timerSpawn -= Time.deltaTime;
@@ -96,7 +157,7 @@ public class GameManager : MonoBehaviour {
             if(tiempoRestante <= 0) {
                 tiempoRestante = 0;
                 actualizarTextoTiempo(); 
-                GameOver(0);
+                gameOver(0);
             }
 
             // Solo intenta activar un nuevo fennec cada intervaloSpawn segundos
@@ -113,6 +174,9 @@ public class GameManager : MonoBehaviour {
 
     // Inicia la partida automáticamente al cargar la escena (se activa cuando la escena 'a' se abre desde el MainMenu).
     void Start() {
+        
+        Time.timeScale = 1;
+        juegopausado = false;
         if (panelFinPartida != null){
         panelFinPartida.SetActive(false);
         }
