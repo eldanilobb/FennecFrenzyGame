@@ -113,7 +113,7 @@ public class GameManager : MonoBehaviour {
         menuPausa.SetActive(true);
     }
 
-    public void reanudar() {
+    public void Reanudar() {
 
         if(!jugando){return;}
         Time.timeScale = 1;
@@ -174,7 +174,7 @@ public class GameManager : MonoBehaviour {
 
     // Inicia la partida automáticamente al cargar la escena (se activa cuando la escena 'a' se abre desde el MainMenu).
     void Start() {
-        
+
         Time.timeScale = 1;
         juegopausado = false;
         if (panelFinPartida != null){
