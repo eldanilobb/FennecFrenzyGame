@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c2564aa143ece6449834ef47c5499ae6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - FENNEC_NORMAL: {fileID: -8016198760732870489, guid: 4d89a1605c66b3f4091db726745477aa, type: 3}
+  - FENNEC_NORMAL_GOLPEADO: {fileID: -8446646002745872345, guid: b159de5a75b701f44b84089f41332c7e, type: 3}
+  - FENNEC_ESPECIAL: {fileID: -3969860642683306795, guid: 0f70c87f46bf90e428dc23023888b4dd, type: 3}
+  - FENNEC_ESPECIAL_GOLPEADO: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
