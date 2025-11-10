@@ -734,17 +734,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &113628610 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 113628609}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &198225793
 GameObject:
   m_ObjectHideFlags: 0
@@ -1090,17 +1079,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &321687790 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 321687789}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &403276751
 GameObject:
   m_ObjectHideFlags: 0
@@ -1370,6 +1348,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 435441360}
   m_CullTransparentMesh: 1
+--- !u!114 &570843045 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 1324559459}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
+--- !u!114 &579994281 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 321687789}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
+--- !u!114 &596719620 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 113628609}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1001 &668670633
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1443,17 +1454,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &668670634 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 668670633}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1001 &673688434
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1527,9 +1527,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &673688435 stripped
+--- !u!114 &689080216 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
   m_PrefabInstance: {fileID: 673688434}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1717,7 +1717,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 8008124234357157914, guid: 9ee86d3a230165443a829ee04e565194, type: 3}
+  m_Sprite: {fileID: 5113916392828210203, guid: 5b12d85e6cc7eec4db013bb3e3e7efaf, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1808,17 +1808,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &822245703 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 822245702}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &990821550
 GameObject:
   m_ObjectHideFlags: 0
@@ -2028,17 +2017,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &1058255865 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 1058255864}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &1073934642
 GameObject:
   m_ObjectHideFlags: 0
@@ -2069,15 +2047,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManagerNiveles
   fennecs:
-  - {fileID: 2676168668876481193}
-  - {fileID: 668670634}
-  - {fileID: 1584859318}
-  - {fileID: 1058255865}
-  - {fileID: 673688435}
-  - {fileID: 1324559460}
-  - {fileID: 822245703}
-  - {fileID: 321687790}
-  - {fileID: 113628610}
+  - {fileID: 1693016870}
+  - {fileID: 596719620}
+  - {fileID: 579994281}
+  - {fileID: 1242519972}
+  - {fileID: 570843045}
+  - {fileID: 689080216}
+  - {fileID: 1171460966}
+  - {fileID: 1833353920}
+  - {fileID: 1161632016}
   tiempoInicio: 60
   maxFennecsActivos: 3
   minIntervaloSpawn: 0.8
@@ -2107,6 +2085,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1161632016 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 1584859317}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &1165328461
 GameObject:
   m_ObjectHideFlags: 0
@@ -2186,6 +2175,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1165328461}
   m_CullTransparentMesh: 1
+--- !u!114 &1171460966 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 1058255864}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
+--- !u!114 &1242519972 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 822245702}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1001 &1324559459
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2259,17 +2270,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &1324559460 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 1324559459}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &1359678749
 GameObject:
   m_ObjectHideFlags: 0
@@ -2421,17 +2421,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &1584859318 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 1584859317}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &1603486415
 GameObject:
   m_ObjectHideFlags: 0
@@ -2701,6 +2690,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651551374}
   m_CullTransparentMesh: 1
+--- !u!114 &1693016870 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 2676168668876481192}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &1781685317
 GameObject:
   m_ObjectHideFlags: 0
@@ -2970,6 +2970,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1830996367}
   m_CullTransparentMesh: 1
+--- !u!114 &1833353920 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2860293675322744689, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
+  m_PrefabInstance: {fileID: 668670633}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1 &1963381184
 GameObject:
   m_ObjectHideFlags: 0
@@ -3436,17 +3447,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
---- !u!114 &2676168668876481193 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3153892650083362470, guid: 166270f5ca62163499fbdbc2f93c7bdc, type: 3}
-  m_PrefabInstance: {fileID: 2676168668876481192}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2564aa143ece6449834ef47c5499ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
