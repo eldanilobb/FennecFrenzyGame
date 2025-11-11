@@ -30,6 +30,12 @@ public class GameManager : MonoBehaviour {
     public GameObject menuPausa;
     public static bool juegopausado = false;
     private int monedas; 
+    private GameServerConnection gameServer;
+    private GameServerMatchmaking matchmaking;
+    private string matchId = "";
+    private string opponentId = "";
+    private bool esPartidaMultijugador = false;
+
 
     public void empezarPartida() {
 
@@ -170,6 +176,32 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
+        // Enviar puntaje cada 1 segundo
+    if (jugando && esPartidaMultijugador)
+    {
+        EnviarPuntajeAlServidor();
+    }
+
+    }
+
+    public void IniciarPartidaMultijugador(string mId, string oId)
+    {
+        gameServer = FindFirstObjectByType<GameServerConnection>();
+        matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
+        matchId = mId;
+        opponentId = oId;
+        esPartidaMultijugador = true;
+    
+        Debug.Log($"Iniciando partida multijugador: {matchId} vs {opponentId}");
+        empezarPartida();
+    }
+
+    void EnviarPuntajeAlServidor()
+    {
+        if (!esPartidaMultijugador || gameServer == null) return;
+    
+        string json = $"{{\"event\":\"send-game-data\",\"data\":{{\"matchId\":\"{matchId}\",\"score\":{puntaje}}}}}";
+        gameServer.SendWebSocketMessage(json);
     }
 
     // Inicia la partida automáticamente al cargar la escena (se activa cuando la escena 'a' se abre desde el MainMenu).
