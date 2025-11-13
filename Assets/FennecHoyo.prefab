@@ -151,8 +151,8 @@ Transform:
   m_GameObject: {fileID: 1248039272639503356}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.04, y: 0.07, z: 0}
-  m_LocalScale: {x: 286.35776, y: 214.53795, z: 256}
+  m_LocalPosition: {x: -0.01, y: 0, z: 0}
+  m_LocalScale: {x: 313.56177, y: 242.68103, z: 256}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3871399117179285505}
@@ -333,7 +333,7 @@ Transform:
   m_GameObject: {fileID: 7455821758603497023}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.07, z: 0}
+  m_LocalPosition: {x: 0.09, y: 0.04, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -353,7 +353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::movimientosNiveles
   FENNEC_NORMAL: {fileID: -8016198760732870489, guid: 4d89a1605c66b3f4091db726745477aa, type: 3}
   FENNEC_NORMAL_GOLPEADO: {fileID: -8446646002745872345, guid: b159de5a75b701f44b84089f41332c7e, type: 3}
-  FENNEC_ESPECIAL: {fileID: -3969860642683306795, guid: 0f70c87f46bf90e428dc23023888b4dd, type: 3}
+  FENNEC_ESPECIAL: {fileID: 4107906235241823633, guid: 13b3b82a973268a44b4725205c05a208, type: 3}
   FENNEC_ESPECIAL_GOLPEADO: {fileID: 0}
   yOculto: 0
   yVisible: 1.5
@@ -451,7 +451,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -8016198760732870489, guid: 4d89a1605c66b3f4091db726745477aa, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

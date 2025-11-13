@@ -224,12 +224,12 @@ public class GameManagerNiveles : MonoBehaviour
     }
 
     public void pausar(){
+
         if(!jugando){return;}
+
         Time.timeScale = 0;
         juegopausado = true;
-        if (menuPausa != null) {
-            menuPausa.SetActive(true);
-        }
+        menuPausa.SetActive(true);
     }
 
     public void Reanudar() {
