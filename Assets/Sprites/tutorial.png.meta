@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8975f754303b0eb4880d03d4b1a25764
+guid: d19baf773dd1e7f46a47e9e0b3f72642
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4394439591879686689
-    second: fondoMain_0
+      213: -1921337063021962082
+    second: tutorial_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,17 +109,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: fondoMain_0
+      name: tutorial_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 286
         y: 0
-        width: 1024
-        height: 1024
+        width: 757
+        height: 768
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 12ab6eca68f2cfc30800000000000000
-      internalID: 4394439591879686689
+      spriteID: e9c98c0fe1a0655e0800000000000000
+      internalID: -1921337063021962082
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      fondoMain_0: 4394439591879686689
+      tutorial_0: -1921337063021962082
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
