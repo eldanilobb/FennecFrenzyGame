@@ -107,7 +107,8 @@ public class GameManager : MonoBehaviour {
     }
 
     public void IrAlMenu() {
-        SceneManager.LoadScene("MainMenu"); 
+        UnlockNewLevel();
+        SceneManager.LoadScene("LevelSelection"); 
     }
 
     public void pausar(){
@@ -214,4 +215,13 @@ public class GameManager : MonoBehaviour {
         }
         empezarPartida();
     }
+
+    void UnlockNewLevel(){
+        if(SceneManager.GetActiveScene().buildIndex >= PlayerPrefs.GetInt("ReachedIndex")){
+            PlayerPrefs.SetInt("ReachedIndex", SceneManager.GetActiveScene().buildIndex + 1);
+            PlayerPrefs.SetInt("unlockedLevel", PlayerPrefs.GetInt("unlockedLevel", 1) + 1);
+            PlayerPrefs.Save();
+        }
+    }
+
 }

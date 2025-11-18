@@ -220,7 +220,7 @@ public class GameManagerNiveles : MonoBehaviour
     }
 
     public void IrAlMenu() {
-        SceneManager.LoadScene("MainMenu"); 
+        SceneManager.LoadScene("LevelSelection"); 
     }
 
     public void pausar(){

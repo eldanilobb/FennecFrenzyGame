@@ -5,9 +5,15 @@ using UnityEngine.SceneManagement;
 using TMPro;
 
 public class MainMenu : MonoBehaviour {
+    AudioManager audioManager;
 
     [SerializeField] private TextMeshProUGUI textoMonedasMenu;
 
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+
+    }
     private void OnEnable() {
         MostrarMonedasAcumuladas();
     }
@@ -22,11 +28,25 @@ public class MainMenu : MonoBehaviour {
     }
 
 
-    public void PlayGame(){
-        
-        SceneManager.LoadSceneAsync("LevelSelection");
+  public void PlayGame(){
+        if (audioManager != null && audioManager.sfx != null)
+        {
+            audioManager.PlaySFX(audioManager.sfx); 
 
+            StartCoroutine(DelaySceneLoad(audioManager.sfx.length));
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection");
+        }
     }
+
+    private IEnumerator DelaySceneLoad(float soundDuration)
+    {
+        yield return new WaitForSeconds(soundDuration);
+        SceneManager.LoadScene("LevelSelection");
+    }
+
 
     public void QuitGame(){
 

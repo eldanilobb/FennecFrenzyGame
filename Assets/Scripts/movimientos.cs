@@ -25,10 +25,12 @@ public class movimientos : MonoBehaviour
     private int indiceFennec = 0;
     private bool golpeable = true;
 
+    AudioManager_Tutorial audioManager;
     private void Awake() {
         spriteVisible = GetComponent<SpriteRenderer>();
         hitbox = GetComponent<BoxCollider2D>();
-        
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager_Tutorial>();
+
         offsetMostrado = hitbox.offset;
         tamanoMostrado = hitbox.size;
         offsetEscondido = new Vector2(offsetMostrado.x, -posInicial.y / 2f);
@@ -79,6 +81,7 @@ public class movimientos : MonoBehaviour
     private void OnMouseDown() {
         if(GameManager.juegopausado){return;}
         if(golpeable) {
+            audioManager.PlaySFX(audioManager.sfx);
             spriteVisible.sprite = FENNECCGOLPEADO;
             StopAllCoroutines();
             StartCoroutine(EsconderRapido());

@@ -18,35 +18,17 @@ public class LevelSelector : MonoBehaviour
     private void Awake()
     {
         int unlockedLevel = PlayerPrefs.GetInt("unlockedLevel", 1);
-        int corrected = unlockedLevel;
-        if (buttons != null)
+        for(int i = 0; i < buttons.Length; i++)
         {
-            corrected = Mathf.Clamp(unlockedLevel, 1, buttons.Length);
-        }
-        else
-        {
-            Debug.LogWarning("LevelSelector: 'buttons' is null in the inspector.");
-        }
-
-        if (corrected != unlockedLevel)
-        {
-            PlayerPrefs.SetInt("unlockedLevel", corrected);
-            PlayerPrefs.Save();
-            Debug.Log($"LevelSelector: corrected unlockedLevel from {unlockedLevel} to {corrected}");
-        }
-
-        for(int i=0;i<buttons.Length; i++)
-        {
-            buttons[i].interactable = false;
-        }
-        for(int i = 0; i < corrected; i++)
-        {
-            buttons[i].interactable = true;
+            if(i + 1 > unlockedLevel)
+            {
+                buttons[i].interactable = false;
+            }
         }
     }
     public void Openlvl(int levelId){
         String levelName = "";
-        if(levelId == 0)
+        if(levelId == 1)
         {
              levelName = "Tutorial";
         }else{levelName = "Nivel " + levelId;}
