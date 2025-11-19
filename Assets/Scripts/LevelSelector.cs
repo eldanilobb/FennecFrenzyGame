@@ -36,4 +36,8 @@ public class LevelSelector : MonoBehaviour
         SceneManager.LoadScene(levelName);
 
     }
+
+    public void onlne(){
+        SceneManager.LoadScene("online");
+    }
 }

@@ -28,7 +28,7 @@ public class MainMenu : MonoBehaviour {
     }
 
 
-  public void PlayGame(){
+    public void PlayGame(){
         if (audioManager != null && audioManager.sfx != null)
         {
             audioManager.PlaySFX(audioManager.sfx); 

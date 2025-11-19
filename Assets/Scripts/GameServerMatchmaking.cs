@@ -4,13 +4,10 @@ using UnityEngine;
 public class GameServerMatchmaking : MonoBehaviour
 {
     private GameServerConnection gameServer;
-    
-    // Estados del matchmaking
     private string currentMatchId = "";
     private string currentOpponentId = "";
     private bool hasActiveMatchRequest = false;
-    
-    // Eventos
+
     public event Action<string> OnMatchRequestSent;
     public event Action<string, string> OnMatchRequestReceived;
     public event Action<string, string> OnMatchAccepted;
@@ -18,52 +15,49 @@ public class GameServerMatchmaking : MonoBehaviour
     public event Action<string> OnMatchCanceledBySender;
     public event Action OnMatchCanceled;
     public event Action<string> OnMatchRequestError;
+    
+    public event Action<string> OnConnectMatchSuccess;
+    public event Action<string> OnConnectMatchError;
+    public event Action OnPingOK;
+    public event Action<string> OnMatchStart;
 
-    void Start()
-    {
-        gameServer = FindFirstObjectByType<GameServerConnection>();
+    void Start() 
+    { 
+        gameServer = FindFirstObjectByType<GameServerConnection>(); 
     }
 
     public void SendMatchRequest(string targetPlayerId)
     {
-        if (!gameServer.isLoggedIn)
-        {
-            Debug.LogWarning("No estás logueado");
-            return;
-        }
-
+        if (!gameServer.isLoggedIn) return;
+        if (hasActiveMatchRequest) return;
         SendEvent("send-match-request", $"\"playerId\":\"{targetPlayerId}\"");
-        Debug.Log($"Solicitud enviada a: {targetPlayerId}");
     }
 
     public void CancelMatchRequest()
     {
-        if (!hasActiveMatchRequest)
-        {
-            Debug.LogWarning("No tienes una solicitud activa");
-            return;
-        }
-
+        hasActiveMatchRequest = false;
         SendEvent("cancel-match-request", "");
-        Debug.Log("Solicitud cancelada");
     }
 
-    public void AcceptMatchRequest()
+    public void AcceptMatchRequest() => SendEvent("accept-match", "");
+    public void RejectMatchRequest() => SendEvent("reject-match", "");
+    
+    public void SendConnectMatch(string matchId)
     {
-        SendEvent("accept-match", "");
-        Debug.Log("Solicitud aceptada");
+        if (string.IsNullOrEmpty(matchId)) return;
+        SendEvent("connect-match", $"\"matchId\":\"{matchId}\"");
     }
 
-    public void RejectMatchRequest()
-    {
-        SendEvent("reject-match", "");
-        Debug.Log("Solicitud rechazada");
+    public void SendPingMatch(string matchId) 
+    { 
+        if (!string.IsNullOrEmpty(matchId)) 
+            SendEvent("ping-match", $"\"matchId\":\"{matchId}\""); 
     }
 
     private void SendEvent(string eventName, string data)
     {
-        string dataField = string.IsNullOrEmpty(data) ? "" : data;
-        string json = $"{{\"event\":\"{eventName}\",\"data\":{{{dataField}}}}}";
+        string d = string.IsNullOrEmpty(data) ? "" : data;
+        string json = $"{{\"event\":\"{eventName}\",\"data\":{{{d}}}}}";
         gameServer.SendWebSocketMessage(json);
     }
 
@@ -72,156 +66,101 @@ public class GameServerMatchmaking : MonoBehaviour
         switch (eventName)
         {
             case "send-match-request":
-                HandleSendMatchRequestResponse(message);
+                if (message.Contains("OK"))
+                {
+                    hasActiveMatchRequest = true;
+                    currentMatchId = ExtractValue(message, "matchId");
+                    OnMatchRequestSent?.Invoke(currentMatchId);
+                }
+                else OnMatchRequestError?.Invoke(message);
                 break;
+
             case "match-request-received":
-                HandleMatchRequestReceived(message);
-                break;
-            case "match-accepted":
-                HandleMatchAccepted(message);
-                break;
-            case "match-rejected":
-                HandleMatchRejected(message);
-                break;
-            case "match-canceled-by-sender":
-                HandleMatchCanceledBySender(message);
-                break;
-            case "cancel-match-request":
-                HandleResponse(message, "Solicitud cancelada", () => {
-                    OnMatchCanceled?.Invoke();
-                    hasActiveMatchRequest = false;
-                });
-                break;
-            case "accept-match":
-                HandleAcceptMatchResponse(message);
-                break;
-            case "reject-match":
-                HandleResponse(message, "Solicitud rechazada", () => {
-                    OnMatchRejected?.Invoke(currentOpponentId);
-                    ResetMatchState();
-                });
-                break;
-        }
-    }
-
-    private void HandleSendMatchRequestResponse(string message)
-    {
-        if (message.Contains("\"status\":\"OK\""))
-        {
-            hasActiveMatchRequest = true;
-            currentMatchId = ExtractValue(message, "matchId");
-            Debug.Log($"Solicitud enviada. Match ID: {currentMatchId}");
-            OnMatchRequestSent?.Invoke(currentMatchId);
-        }
-        else
-        {
-            Debug.LogError($"Error enviando solicitud: {message}");
-            OnMatchRequestError?.Invoke(message);
-        }
-    }
-
-    private void HandleMatchRequestReceived(string message)
-    {
-        try
-        {
-            currentOpponentId = ExtractValue(message, "playerId");
-            currentMatchId = ExtractValue(message, "matchId");
-            hasActiveMatchRequest = true;
-
-            Debug.Log($"Solicitud recibida de: {currentOpponentId}");
-            OnMatchRequestReceived?.Invoke(currentOpponentId, currentMatchId);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error procesando solicitud: {ex.Message}");
-        }
-    }
-
-    private void HandleMatchAccepted(string message)
-    {
-        try
-        {
-            currentMatchId = ExtractValue(message, "matchId");
-            string matchStatus = ExtractValue(message, "matchStatus");
-
-            Debug.Log($"Partida aceptada! Match ID: {currentMatchId}, Status: {matchStatus}");
-            OnMatchAccepted?.Invoke(currentMatchId, matchStatus);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error procesando aceptación: {ex.Message}");
-        }
-    }
-
-    private void HandleMatchRejected(string message)
-    {
-        try
-        {
-            string rejectingPlayerId = ExtractValue(message, "playerId");
-            Debug.Log($"Solicitud rechazada por: {rejectingPlayerId}");
-            OnMatchRejected?.Invoke(rejectingPlayerId);
-            ResetMatchState();
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error procesando rechazo: {ex.Message}");
-        }
-    }
-
-    private void HandleMatchCanceledBySender(string message)
-    {
-        try
-        {
-            string cancelingPlayerId = ExtractValue(message, "playerId");
-            Debug.Log($"Solicitud cancelada por: {cancelingPlayerId}");
-            OnMatchCanceledBySender?.Invoke(cancelingPlayerId);
-            ResetMatchState();
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error procesando cancelación: {ex.Message}");
-        }
-    }
-
-    private void HandleAcceptMatchResponse(string message)
-    {
-        if (message.Contains("\"status\":\"OK\""))
-        {
-            try
-            {
+                currentOpponentId = ExtractValue(message, "playerId");
                 currentMatchId = ExtractValue(message, "matchId");
-                Debug.Log($"Partida aceptada! Match ID: {currentMatchId}");
-                OnMatchAccepted?.Invoke(currentMatchId, "WAITING_PLAYERS");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error: {ex.Message}");
-            }
-        }
-        else
-        {
-            Debug.LogError($"Error aceptando: {message}");
-        }
-    }
+                hasActiveMatchRequest = true;
+                OnMatchRequestReceived?.Invoke(currentOpponentId, currentMatchId);
+                break;
 
-    private void HandleResponse(string message, string successMsg, Action onSuccess)
-    {
-        if (message.Contains("\"status\":\"OK\""))
-        {
-            Debug.Log(successMsg);
-            onSuccess?.Invoke();
-        }
-        else
-        {
-            Debug.LogError($"Error: {message}");
+            case "match-accepted":
+                currentMatchId = ExtractValue(message, "matchId");
+                if (!string.IsNullOrEmpty(currentMatchId))
+                {
+                    OnMatchAccepted?.Invoke(currentMatchId, "CONNECTED");
+                }
+                break;
+
+            case "match-rejected":
+                string rejectId = ExtractValue(message, "playerId");
+                OnMatchRejected?.Invoke(rejectId);
+                ResetMatchState();
+                break;
+
+            case "match-canceled-by-sender":
+                string cancelId = ExtractValue(message, "playerId");
+                OnMatchCanceledBySender?.Invoke(cancelId);
+                ResetMatchState();
+                break;
+
+            case "cancel-match-request":
+                if (message.Contains("OK"))
+                {
+                    hasActiveMatchRequest = false;
+                    OnMatchCanceled?.Invoke();
+                }
+                break;
+            
+            case "connect-match":
+                if (message.Contains("OK")) OnConnectMatchSuccess?.Invoke(currentMatchId);
+                else 
+                {
+                     string errorMsg = ExtractValue(message, "msg");
+                     if(string.IsNullOrEmpty(errorMsg)) errorMsg = "Error";
+                     OnConnectMatchError?.Invoke(errorMsg);
+                }
+                break;
+
+            case "ping-match":
+                if (message.Contains("OK")) OnPingOK?.Invoke();
+                break;
+
+            case "match-start":
+                OnMatchStart?.Invoke(message);
+                break;
+
+            case "accept-match":
+                if (message.Contains("OK") || message.Contains("ok"))
+                {
+                    string possibleId = ExtractValue(message, "matchId");
+                    if (!string.IsNullOrEmpty(possibleId))
+                    {
+                        currentMatchId = possibleId;
+                        OnMatchAccepted?.Invoke(currentMatchId, "CONNECTED");
+                    }
+                }
+                break;
+                
+            case "players-ready":
+            case "reject-match":
+                break;
         }
     }
 
     private string ExtractValue(string json, string key)
     {
-        int startIndex = json.IndexOf($"\"{key}\":\"") + key.Length + 4;
-        int endIndex = json.IndexOf("\"", startIndex);
-        return json.Substring(startIndex, endIndex - startIndex);
+        try {
+            string pattern = $"\"{key}\""; 
+            int keyIdx = json.IndexOf(pattern);
+            if (keyIdx == -1) return "";
+            
+            int valStart = json.IndexOf("\"", keyIdx + pattern.Length + 1);
+            if (valStart == -1) return "";
+            
+            int valEnd = json.IndexOf("\"", valStart + 1);
+            if (valEnd == -1) return "";
+            
+            return json.Substring(valStart + 1, valEnd - valStart - 1);
+        } catch { return ""; }
     }
 
     private void ResetMatchState()
@@ -230,8 +169,5 @@ public class GameServerMatchmaking : MonoBehaviour
         currentMatchId = "";
     }
 
-    // Getters
     public string GetCurrentMatchId() => currentMatchId;
-    public string GetCurrentOpponentId() => currentOpponentId;
-    public bool HasActiveMatchRequest() => hasActiveMatchRequest;
 }
