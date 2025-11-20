@@ -296,7 +296,7 @@ public class GameManagerNiveles : MonoBehaviour
     }
 
 
-    public void reanudar() {
+    public void Reanudar() {
         Time.timeScale = 1;
         juegopausado = false;
 
