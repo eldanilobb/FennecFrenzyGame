@@ -30,6 +30,11 @@ public class GameManager : MonoBehaviour {
     private bool jugando = false;
     private float timerSpawn = 0f;
     private int puntajeFinal = 0;
+    private bool puntosDoblesActivo = false;
+    private float timerPuntosDobles = 0f;
+
+    public GameObject botonPuntosDobles;
+    public GameObject canvasPowerUps;
     public GameObject menuPausa;
     public static bool juegopausado = false;
     private int monedas; 
@@ -134,22 +139,40 @@ public class GameManager : MonoBehaviour {
 
         Time.timeScale = 0;
         juegopausado = true;
+        canvasPowerUps.SetActive(false);
+        botonPuntosDobles.SetActive(false);
         menuPausa.SetActive(true);
     }
 
     public void Reanudar() {
 
         if(!jugando){return;}
+        
         Time.timeScale = 1;
         juegopausado = false;
+        canvasPowerUps.SetActive(true);
+        botonPuntosDobles.SetActive(true);
         menuPausa.SetActive(false);
     }
 
     public void aumentarPuntaje(int indiceFennec) {
-
-        puntaje += 1;
+        puntaje += puntosDoblesActivo ? 2 : 1;
         actualizarTextoPuntaje();
     }
+    public void ActivarPuntosDobles(float duracion) {
+        puntosDoblesActivo = true;
+        timerPuntosDobles = duracion;
+    }
+
+    public void AgregarTiempo(float segundos) {
+        tiempoRestante += segundos;
+
+        if (tiempoRestante > tiempoInicio)
+            tiempoRestante = tiempoInicio;
+
+        actualizarTextoTiempo();
+    }
+
 
      private void actualizarTextoPuntaje() {
 
@@ -193,6 +216,14 @@ public class GameManager : MonoBehaviour {
                     timerSpawn = intervaloSpawn; // reinicia el contador
                 }
             }
+
+            if (puntosDoblesActivo){
+                timerPuntosDobles -= Time.deltaTime;
+                if (timerPuntosDobles <= 0){
+                    puntosDoblesActivo = false;
+                }
+            }
+
         }
         // Enviar puntaje cada 1 segundo
     if (jugando && esPartidaMultijugador)

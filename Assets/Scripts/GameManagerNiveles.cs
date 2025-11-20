@@ -46,10 +46,17 @@ public class GameManagerNiveles : MonoBehaviour
     
     [Header("Pausa UI")]
     public GameObject menuPausa;
+    public GameObject canvasPowerUps;
 
     // --- Variables Internas del Juego ---
     private float tiempoRestante;
     private int puntaje; // Eliminado 'public' para mantenerlo gestionado internamente
+
+    private bool puntosDoblesActivo = false;
+
+    public GameObject botonPuntosDobles;
+    private float timerPuntosDobles = 0f;
+
     private bool jugando = false;
     private float timerSpawn = 0f; // Tiempo para el próximo intento de spawn
     private int monedasGanadasEnNivel; // Renombrado de 'monedas' para claridad
@@ -73,6 +80,14 @@ public class GameManagerNiveles : MonoBehaviour
         empezarPartida();
     }
 
+    public void ActivarPuntosDobles(float duracion) {
+        puntosDoblesActivo = true;
+        timerPuntosDobles = duracion;
+    }
+    public void aumentarPuntaje(int indiceFennec) {
+        puntaje += puntosDoblesActivo ? 2 : 1;
+        actualizarTextoPuntaje();
+    }
     public void empezarPartida() {
         // Asignar índices a los fennecs (una sola vez al inicio)
         for(int i = 0; i < fennecs.Count; i++) {
@@ -141,35 +156,62 @@ public class GameManagerNiveles : MonoBehaviour
 
 
     void Update() {
-        if (juegopausado || !jugando){return;}
+        if (juegopausado || !jugando) return;
+
+        if (puntosDoblesActivo) {
+            timerPuntosDobles -= Time.deltaTime;
+            if (timerPuntosDobles <= 0) {
+                puntosDoblesActivo = false;
+            }
+        }
 
         tiempoRestante -= Time.deltaTime;
         actualizarTextoTiempo(); 
-        if(tiempoRestante <= 0) {
+        if (tiempoRestante <= 0) {
             tiempoRestante = 0;
             actualizarTextoTiempo(); 
-            gameOver(); // Llamada sin parámetro
+            gameOver();
         }
+    }
+
+    public void AgregarTiempo(float segundos) {
+        tiempoRestante += segundos;
+
+        if (tiempoRestante > tiempoInicio)
+            tiempoRestante = tiempoInicio;
+
+        actualizarTextoTiempo();
     }
 
     // NUEVO: La función TopoGolpeado ahora recibe el índice y el tipo
     public void TopoGolpeado(int indiceFennec, TipoDeTopo tipoDeTopoGolpeado) {
         if (!jugando) return;
 
+        int puntos = 0;
+
         if (tipoDeTopoGolpeado == TipoDeTopo.Normal) {
-            puntaje += puntosPorTopoNormal;
-        } else if (tipoDeTopoGolpeado == TipoDeTopo.Especial) {
-            puntaje += puntosPorTopoEspecial;
-            tiempoRestante += tiempoExtraPorEspecial; // Bonificación de tiempo
-            // Asegurarse de que el tiempo no exceda el máximo si hay un límite
-            if (tiempoRestante > tiempoInicio * 1.5f) // Ejemplo: tiempo máximo 1.5 veces el inicial
-            {
+            puntos = puntosPorTopoNormal;
+        }
+        else if (tipoDeTopoGolpeado == TipoDeTopo.Especial) {
+            puntos = puntosPorTopoEspecial;
+
+            // Bonificación de tiempo por topo especial
+            tiempoRestante += tiempoExtraPorEspecial;
+
+            if (tiempoRestante > tiempoInicio * 1.5f) {
                 tiempoRestante = tiempoInicio * 1.5f;
             }
         }
+
+        // APLICAR PUNTOS DOBLES AQUÍ
+        if (puntosDoblesActivo)
+            puntos *= 2;
+
+        puntaje += puntos;
+
         actualizarTextoPuntaje();
-        // fennecsActuales.Remove(fennecs[indiceFennec]); // Ya no necesario
     }
+
 
     // NUEVO: La función Perdido ahora recibe el índice y el tipo
     public void Perdido(int indiceFennec, TipoDeTopo tipoDeTopoPerdido) {
@@ -239,23 +281,30 @@ public class GameManagerNiveles : MonoBehaviour
             SceneManager.LoadScene("LevelSelection"); 
         }    }
 
-    public void pausar(){
-
-        if(!jugando){return;}
+    public void pausar() {
+        if (!jugando) return;
 
         Time.timeScale = 0;
         juegopausado = true;
+
+        // Oculta los power-ups
+        canvasPowerUps.SetActive(false);
+        botonPuntosDobles.SetActive(false);
+
+        // Muestra el menú de pausa
         menuPausa.SetActive(true);
     }
 
-    public void Reanudar() {
-        if(!jugando){return;}
+
+    public void reanudar() {
         Time.timeScale = 1;
         juegopausado = false;
-        if (menuPausa != null) {
-            menuPausa.SetActive(false);
-        }
+
+        canvasPowerUps.SetActive(true);
+        botonPuntosDobles.SetActive(true);
+        menuPausa.SetActive(false);
     }
+
 
 
     private void actualizarTextoPuntaje() {
