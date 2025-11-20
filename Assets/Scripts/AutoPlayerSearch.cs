@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using UnityEngine.SceneManagement;
 
 public class AutoPlayerSearch : MonoBehaviour
 {
@@ -34,6 +35,7 @@ public class AutoPlayerSearch : MonoBehaviour
     [SerializeField] private Button rejectButton;
     [SerializeField] private TextMeshProUGUI opponentNameText;
     [SerializeField] private Button btnRefrescar;
+     [SerializeField] private Button btnSalir;
 
     [Header("Lista de Rivales")]
     [SerializeField] private Transform botonesContainer;
@@ -61,6 +63,7 @@ public class AutoPlayerSearch : MonoBehaviour
         if (acceptButton) acceptButton.onClick.AddListener(AcceptMatch);
         if (rejectButton) rejectButton.onClick.AddListener(RejectMatch);
         if (btnRefrescar) btnRefrescar.onClick.AddListener(RequestPlayerList);
+        if (btnSalir) btnSalir.onClick.AddListener(SalirAlMenu);
 
         if (gameServer != null)
             gameServer.OnServerMessageReceived += HandleServerMessage;
@@ -208,6 +211,11 @@ public class AutoPlayerSearch : MonoBehaviour
     {
         ShowMatchButtons(false);
         UpdateUI("Conectando...");
+    }
+
+    public void SalirAlMenu()
+    {
+        SceneManager.LoadScene("LevelSelection");
     }
 
     private void UpdateUI(string status) { if (statusText) statusText.text = status; }

@@ -1199,7 +1199,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 935578271}
         m_TargetAssemblyTypeName: LevelSelector, Assembly-CSharp
         m_MethodName: onlne
         m_Mode: 1
