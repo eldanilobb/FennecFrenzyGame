@@ -33,8 +33,8 @@ public class GameManager : MonoBehaviour {
     private bool puntosDoblesActivo = false;
     private float timerPuntosDobles = 0f;
 
-    public GameObject botonPuntosDobles;
-    public GameObject canvasPowerUps;
+    // public GameObject botonPuntosDobles;
+    // public GameObject canvasPowerUps;
     public GameObject menuPausa;
     public static bool juegopausado = false;
     private int monedas; 
@@ -139,8 +139,8 @@ public class GameManager : MonoBehaviour {
 
         Time.timeScale = 0;
         juegopausado = true;
-        canvasPowerUps.SetActive(false);
-        botonPuntosDobles.SetActive(false);
+        // canvasPowerUps.SetActive(false);
+        // botonPuntosDobles.SetActive(false);
         menuPausa.SetActive(true);
     }
 
@@ -150,8 +150,8 @@ public class GameManager : MonoBehaviour {
         
         Time.timeScale = 1;
         juegopausado = false;
-        canvasPowerUps.SetActive(true);
-        botonPuntosDobles.SetActive(true);
+        // canvasPowerUps.SetActive(true);
+        // botonPuntosDobles.SetActive(true);
         menuPausa.SetActive(false);
     }
 
