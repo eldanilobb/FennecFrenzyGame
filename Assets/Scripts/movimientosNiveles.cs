@@ -36,9 +36,14 @@ public class movimientosNiveles : MonoBehaviour
     private bool golpeable = false; 
     private GameManagerNiveles gameManagerQueMeActivo;
 
+    AudioManager_Tutorial audioManager;
+
+
     private void Awake() {
         spriteVisible = GetComponent<SpriteRenderer>();
         hitbox = GetComponent<BoxCollider2D>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager_Tutorial>();
+
         
         // <-- CAMBIO: El topo empieza oculto en su 'yOculto'
         transform.localPosition = new Vector2(0, yOculto); 
@@ -113,6 +118,7 @@ public class movimientosNiveles : MonoBehaviour
     private void OnMouseDown() {
         if(GameManagerNiveles.juegopausado){return;}
         if(golpeable) {
+            audioManager.PlaySFX(audioManager.sfx);
             golpeable = false; 
             hitbox.enabled = false; // Desactiva el collider al ser golpeado
             

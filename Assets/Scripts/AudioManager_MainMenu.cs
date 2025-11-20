@@ -10,7 +10,7 @@ public class AudioManager : MonoBehaviour
     public AudioClip backgroundMusic;
     public AudioClip sfx;
     
-        private void Start()
+    private void Start()
     {
         musicsource.clip = backgroundMusic;
         musicsource.Play();

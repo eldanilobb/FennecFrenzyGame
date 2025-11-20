@@ -9,7 +9,6 @@ public class AudioManager_Tutorial : MonoBehaviour
     [Header("---- Audio Clip ----")]
     public AudioClip backgroundMusic;
     public AudioClip sfx;
-
     public AudioClip sfx_button;
     
     private void Start()

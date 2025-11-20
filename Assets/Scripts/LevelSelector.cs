@@ -15,29 +15,54 @@ public class LevelSelector : MonoBehaviour
 {
     public Button[] buttons;
 
+    AudioManager_Selection audioManager;
     private void Awake()
     {
-        int unlockedLevel = PlayerPrefs.GetInt("unlockedLevel", 1);
-        for(int i = 0; i < buttons.Length; i++)
+        
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager_Selection>();
+        int unlockedLevel = PlayerPrefs.GetInt("UnlockedLevel", 1);
+        
+        for(int i=0; i<buttons.Length; i++)
         {
-            if(i + 1 > unlockedLevel)
-            {
-                buttons[i].interactable = false;
-            }
+            buttons[i].interactable = false;
+        }
+        for (int i = 0; i < unlockedLevel && i < buttons.Length; i++)
+        {
+            buttons[i].interactable = true;
         }
     }
     public void Openlvl(int levelId){
         String levelName = "";
-        if(levelId == 1)
-        {
-             levelName = "Tutorial";
-        }else{levelName = "Nivel " + levelId;}
-        
-        SceneManager.LoadScene(levelName);
+          if(levelId == 1) {
+                levelName = "Tutorial";
+            }else{levelName = "Nivel " + (levelId-1);}
 
+         if (audioManager != null && audioManager.sfx != null)
+        {
+            audioManager.PlaySFX(audioManager.sfx); 
+            StartCoroutine(DelaySceneLoad(audioManager.sfx.length,levelName));
+            }
+        else{
+            SceneManager.LoadScene(levelName);
+        }
+        
+
+    }
+private IEnumerator DelaySceneLoad(float soundDuration,String level)
+    {
+        yield return new WaitForSeconds(soundDuration);
+        SceneManager.LoadScene(level);
     }
 
     public void onlne(){
-        SceneManager.LoadScene("online");
+         if (audioManager != null && audioManager.sfx != null)
+        {
+            audioManager.PlaySFX(audioManager.sfx); 
+            StartCoroutine(DelaySceneLoad(audioManager.sfx.length,"online"));
+            }
+        else{
+            SceneManager.LoadScene("online");
+        }
+        
     }
 }

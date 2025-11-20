@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -55,6 +56,11 @@ public class GameManagerNiveles : MonoBehaviour
 
     public static bool juegopausado = false; // Estática para que los topos la lean
 
+    AudioManager_Tutorial audioManager; 
+    private void Awake(){
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager_Tutorial>();
+
+    }
     void Start() {
         Time.timeScale = 1;
         juegopausado = false;
@@ -95,7 +101,7 @@ public class GameManagerNiveles : MonoBehaviour
             }
 
             // Espera un tiempo aleatorio antes del próximo intento de spawn
-            float esperaSpawn = Random.Range(minIntervaloSpawn, maxIntervaloSpawn);
+            float esperaSpawn = UnityEngine.Random.Range(minIntervaloSpawn, maxIntervaloSpawn);
             yield return new WaitForSeconds(esperaSpawn);
 
             // Si el juego ha terminado o está pausado mientras esperábamos, salir
@@ -119,11 +125,11 @@ public class GameManagerNiveles : MonoBehaviour
                 }
 
                 if (fennecsDisponibles.Count > 0) {
-                    int indiceASpawnear = fennecsDisponibles[Random.Range(0, fennecsDisponibles.Count)];
+                    int indiceASpawnear = fennecsDisponibles[UnityEngine.Random.Range(0, fennecsDisponibles.Count)];
                     
                     // Decide si será un topo especial
                     TipoDeTopo tipoASpawnear = TipoDeTopo.Normal;
-                    if (Random.Range(0f, 100f) <= chanceTopoEspecial) {
+                    if (UnityEngine.Random.Range(0f, 100f) <= chanceTopoEspecial) {
                         tipoASpawnear = TipoDeTopo.Especial;
                     }
                     
@@ -174,6 +180,7 @@ public class GameManagerNiveles : MonoBehaviour
 
 
     public void gameOver() { // Eliminado el parámetro 'int tipo'
+        UnlockNewLevel();
         jugando = false;
 
         StopAllCoroutines(); // Detener el SpawnLoop y el TimerTick
@@ -220,8 +227,17 @@ public class GameManagerNiveles : MonoBehaviour
     }
 
     public void IrAlMenu() {
-        SceneManager.LoadScene("LevelSelection"); 
-    }
+        
+        if (audioManager != null && audioManager.sfx_button != null)
+        {
+            audioManager.PlaySFX(audioManager.sfx_button); 
+
+            StartCoroutine(DelaySceneLoad(audioManager.sfx_button.length,"LevelSelection"));
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection"); 
+        }    }
 
     public void pausar(){
 
@@ -256,6 +272,19 @@ public class GameManagerNiveles : MonoBehaviour
         }
     }
 
+        void UnlockNewLevel(){
+        if(SceneManager.GetActiveScene().buildIndex >= PlayerPrefs.GetInt("ReachedIndex")){
+            PlayerPrefs.SetInt("ReachedIndex", SceneManager.GetActiveScene().buildIndex + 1);
+            PlayerPrefs.SetInt("UnlockedLevel", PlayerPrefs.GetInt("UnlockedLevel", 1) + 1);
+            PlayerPrefs.Save();
+        }
+    }
+
+    private IEnumerator DelaySceneLoad(float soundDuration,String level)
+    {
+        yield return new WaitForSeconds(soundDuration);
+        SceneManager.LoadScene(level);
+    }
     // Eliminamos fennecsActuales.Remove, ya no lo usamos
     // public void Perdido(int indiceFennec) {
     //     fennecsActuales.Remove(fennecs[indiceFennec]);

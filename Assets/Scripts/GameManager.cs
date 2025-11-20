@@ -1,7 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
     [SerializeField] private List<movimientos> fennecs;
@@ -35,8 +38,12 @@ public class GameManager : MonoBehaviour {
     private string matchId = "";
     private string opponentId = "";
     private bool esPartidaMultijugador = false;
+    AudioManager_Tutorial audioManager; 
 
+    private void Awake(){
+            audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager_Tutorial>();
 
+    }
     public void empezarPartida() {
 
         for(int i = 0; i < fennecs.Count; i++) {
@@ -54,7 +61,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void gameOver(int tipo) {
-
+        UnlockNewLevel();
         jugando = false;
 
         for(int i = 0; i < fennecs.Count; i++) {
@@ -107,8 +114,18 @@ public class GameManager : MonoBehaviour {
     }
 
     public void IrAlMenu() {
-        UnlockNewLevel();
-        SceneManager.LoadScene("LevelSelection"); 
+        
+        if (audioManager != null && audioManager.sfx_button != null)
+        {
+            audioManager.PlaySFX(audioManager.sfx_button); 
+
+            StartCoroutine(DelaySceneLoad(audioManager.sfx_button.length,"LevelSelection"));
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection"); 
+        }
+        
     }
 
     public void pausar(){
@@ -169,7 +186,7 @@ public class GameManager : MonoBehaviour {
 
             // Solo intenta activar un nuevo fennec cada intervaloSpawn segundos
             if(fennecsActuales.Count < maxFennecsActivos && timerSpawn <= 0f) {
-                int indice = Random.Range(0, fennecs.Count);
+                int indice = UnityEngine.Random.Range(0, fennecs.Count);
                 if(!fennecsActuales.Contains(fennecs[indice])) {
                     fennecsActuales.Add(fennecs[indice]);
                     fennecs[indice].Activate(0);
@@ -219,9 +236,15 @@ public class GameManager : MonoBehaviour {
     void UnlockNewLevel(){
         if(SceneManager.GetActiveScene().buildIndex >= PlayerPrefs.GetInt("ReachedIndex")){
             PlayerPrefs.SetInt("ReachedIndex", SceneManager.GetActiveScene().buildIndex + 1);
-            PlayerPrefs.SetInt("unlockedLevel", PlayerPrefs.GetInt("unlockedLevel", 1) + 1);
+            PlayerPrefs.SetInt("UnlockedLevel", PlayerPrefs.GetInt("UnlockedLevel", 1) + 1);
             PlayerPrefs.Save();
         }
+    }
+
+    private IEnumerator DelaySceneLoad(float soundDuration,String level)
+    {
+        yield return new WaitForSeconds(soundDuration);
+        SceneManager.LoadScene(level);
     }
 
 }
