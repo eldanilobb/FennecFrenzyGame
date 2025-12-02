@@ -25,37 +25,45 @@ public class AutoPlayerSearch : MonoBehaviour
         public List<PlayerData> data;
     }
 
-    [Header("Conexiones")]
-    [SerializeField] private GameServerConnection gameServer;
-    [SerializeField] private GameServerMatchmaking matchmaking;
-    
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI statusText;
     [SerializeField] private Button acceptButton;
     [SerializeField] private Button rejectButton;
     [SerializeField] private TextMeshProUGUI opponentNameText;
     [SerializeField] private Button btnRefrescar;
-     [SerializeField] private Button btnSalir;
+    [SerializeField] private Button btnSalir;
 
     [Header("Lista de Rivales")]
     [SerializeField] private Transform botonesContainer;
     [SerializeField] private GameObject botonRivalPrefab;
     
+    private GameServerConnection gameServer;
+    private GameServerMatchmaking matchmaking;
+    
     private List<PlayerData> onlinePlayers = new List<PlayerData>();
 
     void Start()
     {
+        gameServer = GameServerConnection.Instance;
         if(gameServer == null) gameServer = FindFirstObjectByType<GameServerConnection>();
-        if(matchmaking == null) matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
 
-        SubscribeToEvents();
+        matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
+
         InitializeUI();
+        SubscribeToEvents();
         StartCoroutine(WaitAndRefreshList());
     }
 
     void OnDestroy()
     {
         if (gameServer != null) gameServer.OnServerMessageReceived -= HandleServerMessage;
+        
+        if (matchmaking != null)
+        {
+            matchmaking.OnMatchRequestReceived -= OnMatchRequestReceived;
+            matchmaking.OnMatchAccepted -= OnMatchAccepted;
+            matchmaking.OnMatchRejected -= OnMatchRejected;
+        }
     }
 
     private void SubscribeToEvents()
@@ -84,15 +92,19 @@ public class AutoPlayerSearch : MonoBehaviour
 
     public void RequestPlayerList()
     {
-        if (!gameServer.isLoggedIn) return;
-        statusText.text = "Buscando jugadores...";
-        foreach (Transform child in botonesContainer) Destroy(child.gameObject);
+        if (gameServer == null || !gameServer.isLoggedIn) return;
+        if (statusText) statusText.text = "Buscando jugadores...";
+        
+        if (botonesContainer)
+            foreach (Transform child in botonesContainer) Destroy(child.gameObject);
         
         gameServer.SendWebSocketMessage("{\"event\": \"online-players\"}");
     }
 
     private void HandleServerMessage(string json)
     {
+        if (this == null) return;
+
         if (json.Contains("\"event\":\"online-players\"")) 
         {
             ParseAndBuildList(json);
@@ -115,27 +127,31 @@ public class AutoPlayerSearch : MonoBehaviour
                 UpdateButtonsUI();
             }
         }
-        catch (Exception e)
-        {
-            Debug.LogWarning("Error leyendo lista: " + e.Message);
-        }
+        catch (Exception) { }
     }
 
     private void UpdateButtonsUI()
     {
+        if (botonesContainer == null) return;
+
         foreach (Transform child in botonesContainer) Destroy(child.gameObject);
 
-        string miNombre = gameServer.playerName;
+        string miNombre = gameServer.playerName.Trim();
         int encontrados = 0;
 
         foreach (var player in onlinePlayers)
         {
-            if (player.name == miNombre) continue; 
+            string nombreRemoto = player.name.Trim();
+            
+            if (string.Equals(nombreRemoto, miNombre, StringComparison.OrdinalIgnoreCase)) 
+            {
+                continue; 
+            }
 
             encontrados++;
             GameObject boton = Instantiate(botonRivalPrefab, botonesContainer);
             TextMeshProUGUI texto = boton.GetComponentInChildren<TextMeshProUGUI>();
-            texto.text = $"{player.name} ({player.status})"; 
+            texto.text = $"{nombreRemoto} ({player.status})"; 
             
             Button btn = boton.GetComponent<Button>();
             string targetId = player.id; 
@@ -146,19 +162,23 @@ public class AutoPlayerSearch : MonoBehaviour
             btn.onClick.AddListener(() => DesafiarRival(targetId, targetName));
         }
 
-        if (encontrados == 0) statusText.text = "Sin jugadores disponibles";
-        else statusText.text = "Selecciona un rival:";
+        if (statusText)
+        {
+            if (encontrados == 0) statusText.text = "Sin jugadores disponibles";
+            else statusText.text = "Selecciona un rival:";
+        }
     }
 
     private void DesafiarRival(string id, string nombre)
     {
         if (!gameServer.isLoggedIn) return;
         matchmaking.SendMatchRequest(id);
-        statusText.text = $"Esperando a {nombre}...";
+        if(statusText) statusText.text = $"Esperando a {nombre}...";
     }
 
     private void OnMatchRequestReceived(string opponentId, string matchId)
     {
+        if (this == null) return;
         UpdateUI("Te han desafiado!");
         UpdateOpponentName($"Rival: {opponentId}");
         ShowMatchButtons(true);
@@ -166,13 +186,7 @@ public class AutoPlayerSearch : MonoBehaviour
 
     public void AcceptMatch()
     {
-        Debug.Log("BOTÓN ACEPTAR PULSADO"); // <--- CONFIRMACIÓN VISUAL
-        
-        if (matchmaking == null)
-        {
-            Debug.LogError("ERROR: No tengo referencia al script Matchmaking.");
-            return;
-        }
+        if (matchmaking == null) return;
 
         matchmaking.AcceptMatchRequest();
         UpdateUI("Confirmando con servidor...");
@@ -183,8 +197,8 @@ public class AutoPlayerSearch : MonoBehaviour
 
     private void OnMatchAccepted(string matchId, string status)
     {
+        if (this == null) return;
         UpdateUI("Partida iniciada!");
-        // Nos desactivamos para dejar paso al LobbyManager
         this.gameObject.SetActive(false); 
     }
 
@@ -197,6 +211,7 @@ public class AutoPlayerSearch : MonoBehaviour
 
     private void OnMatchRejected(string opponentId)
     {
+        if (this == null) return;
         UpdateUI($"Oponente rechazo");
         ResetSearch();
     }
@@ -215,6 +230,10 @@ public class AutoPlayerSearch : MonoBehaviour
 
     public void SalirAlMenu()
     {
+        if (GameServerConnection.Instance != null)
+        {
+            GameServerConnection.Instance.ForceDisconnect();
+        }
         SceneManager.LoadScene("LevelSelection");
     }
 

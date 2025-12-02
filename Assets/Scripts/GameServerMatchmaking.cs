@@ -20,6 +20,8 @@ public class GameServerMatchmaking : MonoBehaviour
     public event Action<string> OnConnectMatchError;
     public event Action OnPingOK;
     public event Action<string> OnMatchStart;
+    public event Action<string> OnPlayersReady;
+    public event Action<string> OnCustomReadyReceived; 
 
     void Start() 
     { 
@@ -30,6 +32,9 @@ public class GameServerMatchmaking : MonoBehaviour
     {
         if (!gameServer.isLoggedIn) return;
         if (hasActiveMatchRequest) return;
+    
+        currentOpponentId = targetPlayerId; 
+
         SendEvent("send-match-request", $"\"playerId\":\"{targetPlayerId}\"");
     }
 
@@ -52,6 +57,22 @@ public class GameServerMatchmaking : MonoBehaviour
     { 
         if (!string.IsNullOrEmpty(matchId)) 
             SendEvent("ping-match", $"\"matchId\":\"{matchId}\""); 
+    }
+
+    public void SendLeaveMatch(string matchId)
+    {
+        if (string.IsNullOrEmpty(matchId)) return;
+        SendEvent("quit-match", $"\"matchId\":\"{matchId}\"");
+        
+        currentMatchId = "";
+        currentOpponentId = "";
+        hasActiveMatchRequest = false;
+    }
+
+    public void SendFinishMatch(string matchId, string winnerId)
+    {
+        if (string.IsNullOrEmpty(matchId)) return;
+        SendEvent("finish-game", $"\"matchId\":\"{matchId}\",\"winner\":\"{winnerId}\"");
     }
 
     private void SendEvent(string eventName, string data)
@@ -139,8 +160,19 @@ public class GameServerMatchmaking : MonoBehaviour
                     }
                 }
                 break;
+            
+            case "receive-game-data":
+                string internalPayload = ExtractJsonPayload(message); 
+                
+                if (!string.IsNullOrEmpty(internalPayload) && internalPayload.Contains("custom-ready"))
+                {
+                    OnCustomReadyReceived?.Invoke(internalPayload);
+                }
+                break;
                 
             case "players-ready":
+                break; 
+                
             case "reject-match":
                 break;
         }
@@ -163,6 +195,36 @@ public class GameServerMatchmaking : MonoBehaviour
         } catch { return ""; }
     }
 
+    private string ExtractJsonPayload(string fullJson)
+    {
+        try 
+        {
+            string key = "\"payload\":";
+            int startIdx = fullJson.IndexOf(key);
+            if (startIdx == -1) return "";
+
+            startIdx += key.Length;
+            int openBrace = fullJson.IndexOf('{', startIdx);
+            if (openBrace == -1) return "";
+
+            int balance = 0;
+            for (int i = openBrace; i < fullJson.Length; i++)
+            {
+                if (fullJson[i] == '{') balance++;
+                else if (fullJson[i] == '}')
+                {
+                    balance--;
+                    if (balance == 0)
+                    {
+                        return fullJson.Substring(openBrace, i - openBrace + 1);
+                    }
+                }
+            }
+        }
+        catch { }
+        return "";
+    }
+
     private void ResetMatchState()
     {
         hasActiveMatchRequest = false;
@@ -170,4 +232,5 @@ public class GameServerMatchmaking : MonoBehaviour
     }
 
     public string GetCurrentMatchId() => currentMatchId;
+    public string GetCurrentOpponentId() => currentOpponentId;
 }

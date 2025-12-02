@@ -6,6 +6,8 @@ using System.Threading;
 
 public class GameServerConnection : MonoBehaviour
 {
+    public static GameServerConnection Instance { get; private set; }
+
     public string serverUrl = "ws://cross-game-ucn.martux.cl:4010";
     public string gameId = "B";
     public string playerName = "Fennec"; 
@@ -14,18 +16,32 @@ public class GameServerConnection : MonoBehaviour
     public bool isLoggedIn = false;
     private CancellationTokenSource cancellationTokenSource;
     
-    [Header("Referencias Obligatorias")]
     [SerializeField] private GameServerMatchmaking matchmakingSystem;
 
     public event Action<string> OnServerMessageReceived; 
 
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this.gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(this.gameObject);
+    }
+
     void Start() 
     { 
-        if (playerName == "Fennec")
+        if (!isLoggedIn)
         {
-            playerName = "Fennec_" + UnityEngine.Random.Range(100, 999);
+            if (playerName == "Fennec")
+            {
+                playerName = "Fennec_" + UnityEngine.Random.Range(100, 999);
+            }
+            ConnectToServer(); 
         }
-        ConnectToServer(); 
     }
 
     void ConnectToServer()
@@ -57,7 +73,7 @@ public class GameServerConnection : MonoBehaviour
     private IEnumerator ReceiveMessages()
     {
         byte[] buffer = new byte[1024 * 4];
-        while (websocket.State == WebSocketState.Open)
+        while (websocket != null && websocket.State == WebSocketState.Open)
         {
             var receiveTask = websocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
             yield return new WaitUntil(() => receiveTask.IsCompleted);
@@ -108,13 +124,14 @@ public class GameServerConnection : MonoBehaviour
 
     private void HandleMatchmakingEvent(string eventName, string message)
     {
+        if (matchmakingSystem == null)
+        {
+            matchmakingSystem = FindFirstObjectByType<GameServerMatchmaking>();
+        }
+
         if (matchmakingSystem != null)
         {
             matchmakingSystem.ProcessMatchmakingEvent(eventName, message);
-        }
-        else
-        {
-            Debug.LogError("GameServerConnection NO TIENE REFERENCIA a GameServerMatchmaking");
         }
     }
 
@@ -134,5 +151,22 @@ public class GameServerConnection : MonoBehaviour
         websocket.SendAsync(new ArraySegment<byte>(buffer), WebSocketMessageType.Text, true, CancellationToken.None);
     }
 
-    void OnDestroy() { websocket?.Dispose(); cancellationTokenSource?.Cancel(); }
+    public void ForceDisconnect()
+    {
+        if (websocket != null && websocket.State == WebSocketState.Open)
+        {
+            websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Client Quit", CancellationToken.None);
+        }
+        Destroy(this.gameObject);
+    }
+
+    void OnDestroy() 
+    { 
+        if(Instance == this)
+        {
+            websocket?.Dispose(); 
+            cancellationTokenSource?.Cancel(); 
+            Instance = null;
+        }
+    }
 }
