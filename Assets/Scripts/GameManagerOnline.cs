@@ -9,12 +9,16 @@ public class GameManagerOnline : GameManagerNiveles
     private GameServerMatchmaking matchmaking;
     private string currentMatchId = "";
 
-    [Header("Castigo Velocidad")]
+    [Header("Configuración Online")]
+    public float duracionCastigoLocal = 5.0f; 
     public static float multiplicadorGlobal = 1.0f;
+
+    [Header("Feedback Visual")]
+    public GameObject avisoAtaqueUI; 
 
     protected override void Start() 
     {
-        multiplicadorGlobal = 1.0f;
+        multiplicadorGlobal = 1.0f; 
         gameServer = GameServerConnection.Instance;
         matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
 
@@ -37,12 +41,15 @@ public class GameManagerOnline : GameManagerNiveles
         if(panelFinPartida) panelFinPartida.SetActive(false);
         if(menuPausa) menuPausa.SetActive(false);
 
+        if (avisoAtaqueUI != null) avisoAtaqueUI.SetActive(false);
+
         empezarPartida();
     }
 
     void OnDestroy()
     {
         if (matchmaking != null) matchmaking.OnCustomReadyReceived -= RecibirEventoDeRival;
+        multiplicadorGlobal = 1.0f; 
     }
 
     protected override void Update()
@@ -57,7 +64,7 @@ public class GameManagerOnline : GameManagerNiveles
             actualizarTextoTiempo(); 
             gameOver();
         }
-        
+
     }
 
     public override void TopoGolpeado(int indiceFennec, TipoDeTopo tipo)
@@ -66,7 +73,9 @@ public class GameManagerOnline : GameManagerNiveles
 
         int puntos = (tipo == TipoDeTopo.Especial) ? puntosPorTopoEspecial : puntosPorTopoNormal;
 
-        if (tipo == TipoDeTopo.Especial) { //Logica para fennec especial online} 
+        if (tipo == TipoDeTopo.Especial) 
+        { 
+            EnviarAtaque(); 
         } 
 
         if (puntosDoblesActivo) puntos *= 2;
@@ -75,18 +84,72 @@ public class GameManagerOnline : GameManagerNiveles
         actualizarTextoPuntaje();
     }
 
-    public override void pausar()
+    public void EnviarAtaque()
     {
-        if (!jugando) return;
-        
-        juegopausado = true; 
-        menuPausa.SetActive(true);
+        if (string.IsNullOrEmpty(currentMatchId)) return;
+
+        GameSignal signal = new GameSignal();
+        signal.type = "attack"; 
+
+        string jsonPayload = JsonUtility.ToJson(signal);
+
+        string finalMessage = $@"{{
+            ""event"": ""send-game-data"", 
+            ""data"": {{ 
+                ""matchId"": ""{currentMatchId}"", 
+                ""payload"": {jsonPayload} 
+            }} 
+        }}";
+
+        gameServer.SendWebSocketMessage(finalMessage);
     }
 
-    public override void Reanudar()
+    private void RecibirEventoDeRival(string jsonPayload)
     {
-        juegopausado = false;
-        menuPausa.SetActive(false);
+        try 
+        {
+            GameSignal signal = JsonUtility.FromJson<GameSignal>(jsonPayload);
+
+            if (signal != null && signal.type == "attack")
+            {
+                iniciarCastigoVelocidad();
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning("Ignorando mensaje desconocido: " + e.Message);
+        }
+    }
+
+    public void iniciarCastigoVelocidad()
+    {
+        StopCoroutine("RutinaCastigoVelocidad"); 
+        StartCoroutine("RutinaCastigoVelocidad");
+    }
+
+    private IEnumerator RutinaCastigoVelocidad()
+    {
+        if (avisoAtaqueUI != null) avisoAtaqueUI.SetActive(true);
+        
+        multiplicadorGlobal = 3.0f; 
+        
+        yield return new WaitForSeconds(duracionCastigoLocal);
+
+        multiplicadorGlobal = 1.0f;
+        
+        if (avisoAtaqueUI != null) avisoAtaqueUI.SetActive(false);
+        
+        Debug.Log("Castigo finalizado.");
+    }
+
+    public override void pausar() { if (jugando) { juegopausado = true; menuPausa.SetActive(true); } }
+    public override void Reanudar() { juegopausado = false; menuPausa.SetActive(false); }
+    
+    public override void gameOver()
+    {
+        base.gameOver();
+        if (matchmaking != null && !string.IsNullOrEmpty(currentMatchId))
+            matchmaking.SendFinishMatch(currentMatchId, gameServer.playerName);
     }
 
     public override void IrAlMenu()
@@ -95,63 +158,24 @@ public class GameManagerOnline : GameManagerNiveles
         {
             string closePayload = $@"{{
                 ""event"": ""send-game-data"", 
-                ""data"": {{ 
-                    ""matchId"": ""{currentMatchId}"", 
-                    ""payload"": {{ 
-                        ""type"": ""game-close"", 
-                        ""close"": true 
-                    }} 
-                }} 
+                ""data"": {{ ""matchId"": ""{currentMatchId}"", ""payload"": {{ ""type"": ""game-close"", ""close"": true }} }} 
             }}";
-            
-            if (gameServer != null) gameServer.SendWebSocketMessage(closePayload);
-
+            gameServer.SendWebSocketMessage(closePayload);
             matchmaking.SendFinishMatch(currentMatchId, gameServer.playerName);
-            
             matchmaking.SendLeaveMatch(currentMatchId);
         }
-
+        
         if (audioManager != null && audioManager.sfx_button != null) {
             audioManager.PlaySFX(audioManager.sfx_button); 
             StartCoroutine(DelaySceneLoad(audioManager.sfx_button.length, "Online"));
         } else {
             SceneManager.LoadScene("Online"); 
-        }   
+        }  
     }
+}
 
-    public override void gameOver()
-    {
-        base.gameOver();
-
-        if (matchmaking != null && !string.IsNullOrEmpty(currentMatchId))
-        {
-            matchmaking.SendFinishMatch(currentMatchId, gameServer.playerName);
-        }
-    }
-
-    public void EnviarAtaque(string tipo, int cantidad)
-    {
-        if (string.IsNullOrEmpty(currentMatchId)) return;
-        Debug.Log($"Enviando ataque al rival: {tipo}");
-    }
-
-    private void RecibirEventoDeRival(string jsonPayload)
-    {
-        Debug.Log($"Recibido del rival: {jsonPayload}");
-    }
-
-    public void iniciarCastigoVelocidad()
-    {
-        StartCoroutine(castigoVelocidad(6.0f));
-    }
-
-    private IEnumerator castigoVelocidad(float duracion)
-    {
-        multiplicadorGlobal = 3.0f; 
-
-        yield return new WaitForSeconds(duracion);
-
-        multiplicadorGlobal = 1.0f;
-        Debug.Log("Velocidad normalizada.");
-    }
+[System.Serializable]
+public class GameSignal
+{
+    public string type; 
 }

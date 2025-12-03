@@ -164,7 +164,7 @@ public class GameServerMatchmaking : MonoBehaviour
             case "receive-game-data":
                 string internalPayload = ExtractJsonPayload(message); 
                 
-                if (!string.IsNullOrEmpty(internalPayload) && internalPayload.Contains("custom-ready"))
+                if (!string.IsNullOrEmpty(internalPayload))
                 {
                     OnCustomReadyReceived?.Invoke(internalPayload);
                 }

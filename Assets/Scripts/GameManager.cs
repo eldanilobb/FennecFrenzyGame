@@ -274,8 +274,11 @@ public class GameManager : MonoBehaviour {
 
     private IEnumerator DelaySceneLoad(float soundDuration,String level)
     {
-        yield return new WaitForSeconds(soundDuration);
+        yield return new WaitForSecondsRealtime(soundDuration);
         SceneManager.LoadScene(level);
+
+        Time.timeScale = 1; 
+        juegopausado = false;
     }
 
 }

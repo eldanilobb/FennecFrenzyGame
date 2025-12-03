@@ -202,6 +202,8 @@ public class GameManagerNiveles : MonoBehaviour
             audioManager.PlaySFX(audioManager.sfx_button); 
             StartCoroutine(DelaySceneLoad(audioManager.sfx_button.length,"LevelSelection"));
         } else {
+            Time.timeScale = 1;
+            juegopausado = false;
             SceneManager.LoadScene("LevelSelection"); 
         }    
     }
@@ -243,6 +245,10 @@ public class GameManagerNiveles : MonoBehaviour
 
     protected IEnumerator DelaySceneLoad(float soundDuration,String level) {
         yield return new WaitForSeconds(soundDuration);
+
+        Time.timeScale = 1;
+        juegopausado = false;
+
         SceneManager.LoadScene(level);
     }
 }
