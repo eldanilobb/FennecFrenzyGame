@@ -9,8 +9,12 @@ public class GameManagerOnline : GameManagerNiveles
     private GameServerMatchmaking matchmaking;
     private string currentMatchId = "";
 
+    [Header("Castigo Velocidad")]
+    public static float multiplicadorGlobal = 1.0f;
+
     protected override void Start() 
     {
+        multiplicadorGlobal = 1.0f;
         gameServer = GameServerConnection.Instance;
         matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
 
@@ -58,7 +62,17 @@ public class GameManagerOnline : GameManagerNiveles
 
     public override void TopoGolpeado(int indiceFennec, TipoDeTopo tipo)
     {
-        base.TopoGolpeado(indiceFennec, tipo);
+        if (!jugando) return;
+
+        int puntos = (tipo == TipoDeTopo.Especial) ? puntosPorTopoEspecial : puntosPorTopoNormal;
+
+        if (tipo == TipoDeTopo.Especial) { //Logica para fennec especial online} 
+        } 
+
+        if (puntosDoblesActivo) puntos *= 2;
+
+        puntaje += puntos;
+        actualizarTextoPuntaje();
     }
 
     public override void pausar()
@@ -96,6 +110,7 @@ public class GameManagerOnline : GameManagerNiveles
             
             matchmaking.SendLeaveMatch(currentMatchId);
         }
+
         if (audioManager != null && audioManager.sfx_button != null) {
             audioManager.PlaySFX(audioManager.sfx_button); 
             StartCoroutine(DelaySceneLoad(audioManager.sfx_button.length, "Online"));
@@ -123,5 +138,20 @@ public class GameManagerOnline : GameManagerNiveles
     private void RecibirEventoDeRival(string jsonPayload)
     {
         Debug.Log($"Recibido del rival: {jsonPayload}");
+    }
+
+    public void iniciarCastigoVelocidad()
+    {
+        StartCoroutine(castigoVelocidad(6.0f));
+    }
+
+    private IEnumerator castigoVelocidad(float duracion)
+    {
+        multiplicadorGlobal = 3.0f; 
+
+        yield return new WaitForSeconds(duracion);
+
+        multiplicadorGlobal = 1.0f;
+        Debug.Log("Velocidad normalizada.");
     }
 }

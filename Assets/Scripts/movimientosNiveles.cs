@@ -90,12 +90,12 @@ public class movimientosNiveles : MonoBehaviour
         float tiempoTranscurrido = 0f;
         while (tiempoTranscurrido < duracionMostrarEsconder) {
             transform.localPosition = Vector2.Lerp(posDeInicio, posDeFinal, tiempoTranscurrido / duracionMostrarEsconder);
-            tiempoTranscurrido += Time.deltaTime;
+            tiempoTranscurrido += Time.deltaTime * GameManagerOnline.multiplicadorGlobal;
             yield return null;
         }
         transform.localPosition = posDeFinal;
 
-        yield return new WaitForSeconds(duracionVisibleArriba); 
+        yield return new WaitForSeconds(duracionVisibleArriba/GameManagerOnline.multiplicadorGlobal); 
 
         // --- Esconder (si no fue golpeado) ---
         if (golpeable) 
@@ -103,7 +103,7 @@ public class movimientosNiveles : MonoBehaviour
             tiempoTranscurrido = 0f;
             while (tiempoTranscurrido < duracionMostrarEsconder) {
                 transform.localPosition = Vector2.Lerp(posDeFinal, posDeInicio, tiempoTranscurrido / duracionMostrarEsconder);
-                tiempoTranscurrido += Time.deltaTime;
+                tiempoTranscurrido += Time.deltaTime * GameManagerOnline.multiplicadorGlobal;
                 yield return null;
             }
             
@@ -152,7 +152,7 @@ public class movimientosNiveles : MonoBehaviour
         while (tiempoTranscurrido < duracionBajada)
         {
             transform.localPosition = Vector2.Lerp(posActual, posDeInicio, tiempoTranscurrido / duracionBajada);
-            tiempoTranscurrido += Time.deltaTime;
+            tiempoTranscurrido += Time.deltaTime * GameManagerOnline.multiplicadorGlobal;
             yield return null;
         }
         
