@@ -1928,7 +1928,7 @@ MonoBehaviour:
   titleText: {fileID: 1878426169}
   cancelButton: {fileID: 1032699024}
   myGameName: Fennec Frenzy
-  gameSceneName: OnlineMatch
+  gameSceneName: NivelOnline
 --- !u!4 &1386385429
 Transform:
   m_ObjectHideFlags: 0

@@ -32,7 +32,7 @@ public class LobbyManager : MonoBehaviour
 
     [Header("Game Data")]
     public string myGameName = "Fennec Frenzy"; 
-    public string gameSceneName = "OnlineMatch"; 
+    public string gameSceneName = "NivelOnline"; 
 
     private GameServerConnection gameServer;
     private GameServerMatchmaking matchmaking;
