@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManagerNiveles : MonoBehaviour 
 {
@@ -38,6 +39,13 @@ public class GameManagerNiveles : MonoBehaviour
     public GameObject canvasPowerUps;
     public GameObject botonPuntosDobles;
 
+    [Header("Sistema de Vidas Visual")]
+    [SerializeField] protected int vidas = 3;
+    protected int vidasActuales;
+    [SerializeField] protected List<Image> corazonesUI;
+    [SerializeField] protected Sprite spriteCorazonLleno; 
+    [SerializeField] protected Sprite spriteCorazonVacio;
+
     // --- Variables ---
     protected float tiempoRestante;
     protected int puntaje; 
@@ -59,6 +67,9 @@ public class GameManagerNiveles : MonoBehaviour
     protected virtual void Start() { // virtual
         Time.timeScale = 1;
         juegopausado = false;
+
+        vidasActuales = vidas;
+        ActualizarVidasUI();
         
         if (panelFinPartida != null) panelFinPartida.SetActive(false);
         if (menuPausa != null) menuPausa.SetActive(false);
@@ -78,6 +89,19 @@ public class GameManagerNiveles : MonoBehaviour
         jugando = true;
         
         StartCoroutine(SpawnLoop());
+    }
+
+    protected void ActualizarVidasUI() 
+    {
+        if (spriteCorazonLleno == null) return;
+
+        for (int i = 0; i < corazonesUI.Count; i++) {
+            if (i < vidasActuales) {
+                corazonesUI[i].sprite = spriteCorazonLleno;
+            } else {
+                corazonesUI[i].sprite = spriteCorazonVacio;
+            }
+        }
     }
 
     // Corrutina protegida para que el hijo la use o la sobreescriba si quiere
@@ -157,7 +181,21 @@ public class GameManagerNiveles : MonoBehaviour
         actualizarTextoPuntaje();
     }
 
-    public virtual void Perdido(int indiceFennec, TipoDeTopo tipo) { }
+    public virtual void Perdido(int indiceFennec, TipoDeTopo tipo) { 
+        if (!jugando) return;
+
+        vidasActuales--;
+        int indiceCorazon = Mathf.Clamp(vidasActuales, 0, corazonesUI.Count - 1);
+
+        if (corazonesUI.Count > indiceCorazon && spriteCorazonVacio != null) {
+            corazonesUI[indiceCorazon].sprite = spriteCorazonVacio;
+        }
+
+        if (vidasActuales <= 0) {
+            vidasActuales = 0;
+            gameOver();
+        }
+    }
 
     public void AgregarTiempo(float segundos) {
         tiempoRestante += segundos;

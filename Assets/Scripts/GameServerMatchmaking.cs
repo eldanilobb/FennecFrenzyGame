@@ -18,7 +18,10 @@ public class GameServerMatchmaking : MonoBehaviour
     
     public event Action<string> OnConnectMatchSuccess;
     public event Action<string> OnConnectMatchError;
-    public event Action OnPingOK;
+    
+    // CAMBIO: Ahora pasamos el JSON completo del ping para saber quién lo envió
+    public event Action<string> OnPingReceived; 
+    
     public event Action<string> OnMatchStart;
     public event Action<string> OnPlayersReady;
     public event Action<string> OnCustomReadyReceived; 
@@ -34,7 +37,6 @@ public class GameServerMatchmaking : MonoBehaviour
         if (hasActiveMatchRequest) return;
     
         currentOpponentId = targetPlayerId; 
-
         SendEvent("send-match-request", $"\"playerId\":\"{targetPlayerId}\"");
     }
 
@@ -87,13 +89,11 @@ public class GameServerMatchmaking : MonoBehaviour
         switch (eventName)
         {
             case "send-match-request":
-                if (message.Contains("OK"))
-                {
+                if (message.Contains("OK")) {
                     hasActiveMatchRequest = true;
                     currentMatchId = ExtractValue(message, "matchId");
                     OnMatchRequestSent?.Invoke(currentMatchId);
-                }
-                else OnMatchRequestError?.Invoke(message);
+                } else OnMatchRequestError?.Invoke(message);
                 break;
 
             case "match-request-received":
@@ -105,27 +105,23 @@ public class GameServerMatchmaking : MonoBehaviour
 
             case "match-accepted":
                 currentMatchId = ExtractValue(message, "matchId");
-                if (!string.IsNullOrEmpty(currentMatchId))
-                {
+                if (!string.IsNullOrEmpty(currentMatchId)) {
                     OnMatchAccepted?.Invoke(currentMatchId, "CONNECTED");
                 }
                 break;
 
             case "match-rejected":
-                string rejectId = ExtractValue(message, "playerId");
-                OnMatchRejected?.Invoke(rejectId);
+                OnMatchRejected?.Invoke(ExtractValue(message, "playerId"));
                 ResetMatchState();
                 break;
 
             case "match-canceled-by-sender":
-                string cancelId = ExtractValue(message, "playerId");
-                OnMatchCanceledBySender?.Invoke(cancelId);
+                OnMatchCanceledBySender?.Invoke(ExtractValue(message, "playerId"));
                 ResetMatchState();
                 break;
 
             case "cancel-match-request":
-                if (message.Contains("OK"))
-                {
+                if (message.Contains("OK")) {
                     hasActiveMatchRequest = false;
                     OnMatchCanceled?.Invoke();
                 }
@@ -133,8 +129,7 @@ public class GameServerMatchmaking : MonoBehaviour
             
             case "connect-match":
                 if (message.Contains("OK")) OnConnectMatchSuccess?.Invoke(currentMatchId);
-                else 
-                {
+                else {
                      string errorMsg = ExtractValue(message, "msg");
                      if(string.IsNullOrEmpty(errorMsg)) errorMsg = "Error";
                      OnConnectMatchError?.Invoke(errorMsg);
@@ -142,7 +137,8 @@ public class GameServerMatchmaking : MonoBehaviour
                 break;
 
             case "ping-match":
-                if (message.Contains("OK")) OnPingOK?.Invoke();
+                // CAMBIO IMPORTANTE: Pasamos el mensaje entero para analizar playerId
+                OnPingReceived?.Invoke(message);
                 break;
 
             case "match-start":
@@ -150,11 +146,9 @@ public class GameServerMatchmaking : MonoBehaviour
                 break;
 
             case "accept-match":
-                if (message.Contains("OK") || message.Contains("ok"))
-                {
+                if (message.Contains("OK") || message.Contains("ok")) {
                     string possibleId = ExtractValue(message, "matchId");
-                    if (!string.IsNullOrEmpty(possibleId))
-                    {
+                    if (!string.IsNullOrEmpty(possibleId)) {
                         currentMatchId = possibleId;
                         OnMatchAccepted?.Invoke(currentMatchId, "CONNECTED");
                     }
@@ -163,18 +157,17 @@ public class GameServerMatchmaking : MonoBehaviour
             
             case "receive-game-data":
                 string internalPayload = ExtractJsonPayload(message); 
-                
-                if (!string.IsNullOrEmpty(internalPayload))
-                {
+                if (!string.IsNullOrEmpty(internalPayload)) {
                     OnCustomReadyReceived?.Invoke(internalPayload);
                 }
                 break;
                 
             case "players-ready":
+                // Godot usa este evento para abrir el lobby
+                OnPlayersReady?.Invoke(message);
                 break; 
                 
-            case "reject-match":
-                break;
+            case "reject-match": break;
         }
     }
 
@@ -197,31 +190,22 @@ public class GameServerMatchmaking : MonoBehaviour
 
     private string ExtractJsonPayload(string fullJson)
     {
-        try 
-        {
+        try {
             string key = "\"payload\":";
             int startIdx = fullJson.IndexOf(key);
             if (startIdx == -1) return "";
-
             startIdx += key.Length;
             int openBrace = fullJson.IndexOf('{', startIdx);
             if (openBrace == -1) return "";
-
             int balance = 0;
-            for (int i = openBrace; i < fullJson.Length; i++)
-            {
+            for (int i = openBrace; i < fullJson.Length; i++) {
                 if (fullJson[i] == '{') balance++;
-                else if (fullJson[i] == '}')
-                {
+                else if (fullJson[i] == '}') {
                     balance--;
-                    if (balance == 0)
-                    {
-                        return fullJson.Substring(openBrace, i - openBrace + 1);
-                    }
+                    if (balance == 0) return fullJson.Substring(openBrace, i - openBrace + 1);
                 }
             }
-        }
-        catch { }
+        } catch { }
         return "";
     }
 
