@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviour
 {
+    // --- CLASES PARA EL JSON ---
     [Serializable]
     public class PlayerData { public string id; public string name; public string status; }
 
@@ -15,11 +16,13 @@ public class LobbyManager : MonoBehaviour
     public class ServerResponse { public string @event; public List<PlayerData> data; }
 
     [Serializable]
-    public class GamePayload 
-    { 
-        public string type; 
-        public bool close; 
-    }
+    public class GamePayload { public string type; public bool close; }
+
+    [Serializable]
+    public class PingRoot { public string @event; public PingData data; }
+    [Serializable]
+    public class PingData { public string playerId; public string matchId; }
+
 
     [Header("UI References")]
     public GameObject lobbyPanel;
@@ -40,10 +43,8 @@ public class LobbyManager : MonoBehaviour
     private bool isStarting = false;
     private string currentMatchId = "";
 
-    // Diccionario para saber quién está listo (Nombre -> Bool)
-    private Dictionary<string, bool> remoteReadyStates = new Dictionary<string, bool>();
-    
-    // Diccionario traductor (ID -> Nombre) para los Pings
+    // IDs de jugadores listos (Reemplaza al antiguo remoteReadyStates)
+    private HashSet<string> readyPlayerIds = new HashSet<string>();
     private Dictionary<string, string> playerIdsToNames = new Dictionary<string, string>();
 
     void Start()
@@ -55,20 +56,17 @@ public class LobbyManager : MonoBehaviour
 
         if (gameServer == null || matchmaking == null) return;
 
-        // Limpieza inicial por si venimos de otra escena
         currentMatchId = ""; 
         amIReady = false;
-        remoteReadyStates.Clear();
+        readyPlayerIds.Clear();
         playerIdsToNames.Clear();
 
-        // Suscripciones
         gameServer.OnServerMessageReceived += HandleServerMessage;
         matchmaking.OnMatchAccepted += HandleMatchAccepted;
-        
         matchmaking.OnPingReceived += HandlePingReceived;
         matchmaking.OnCustomReadyReceived += HandleGameData;
-        matchmaking.OnPlayersReady += (msg) => OpenLobby();
         matchmaking.OnMatchStart += HandleMatchStart;
+        matchmaking.OnPlayersReady += HandlePlayersReady; 
 
         if (cancelButton != null) cancelButton.onClick.AddListener(() => QuitLobby(true));
         
@@ -85,7 +83,14 @@ public class LobbyManager : MonoBehaviour
             matchmaking.OnPingReceived -= HandlePingReceived;
             matchmaking.OnCustomReadyReceived -= HandleGameData;
             matchmaking.OnMatchStart -= HandleMatchStart;
+            matchmaking.OnPlayersReady -= HandlePlayersReady;
         }
+    }
+
+    private void HandlePlayersReady(string msg)
+    {
+        if (this == null || gameObject == null) return;
+        OpenLobby();
     }
 
     // --- CONEXIÓN AL LOBBY ---
@@ -98,9 +103,7 @@ public class LobbyManager : MonoBehaviour
 
     private IEnumerator RutinaConexionInicial()
     {
-        // Espera de seguridad (igual que Godot)
         yield return new WaitForSeconds(0.5f);
-        
         currentMatchId = matchmaking.GetCurrentMatchId();
         matchmaking.SendConnectMatch(currentMatchId);
     }
@@ -108,6 +111,8 @@ public class LobbyManager : MonoBehaviour
     public void OpenLobby()
     {
         if (isLobbyActive) return;
+        if (this == null || !gameObject.activeInHierarchy) return;
+
         StartCoroutine(RutinaAbrirLobby());
     }
 
@@ -116,7 +121,6 @@ public class LobbyManager : MonoBehaviour
         var buscador = FindFirstObjectByType<AutoPlayerSearch>();
         if (buscador) buscador.gameObject.SetActive(false);
 
-        // Espera para sincronizar UI
         yield return new WaitForSeconds(0.8f);
         
         if (this == null) yield break;
@@ -132,7 +136,7 @@ public class LobbyManager : MonoBehaviour
         if(titleText) titleText.text = "Lobby";
         
         amIReady = false;
-        remoteReadyStates.Clear();
+        readyPlayerIds.Clear();
         playerIdsToNames.Clear();
 
         UpdateLobbyUI(new List<PlayerData>()); 
@@ -151,43 +155,44 @@ public class LobbyManager : MonoBehaviour
 
     public void QuitLobby(bool notifyRival = true)
     {
+        StartCoroutine(RutinaSalidaSegura(notifyRival));
+    }
+
+    private IEnumerator RutinaSalidaSegura(bool notify)
+    {
         isLobbyActive = false;
         isStarting = false;
 
-        if (!string.IsNullOrEmpty(currentMatchId) && notifyRival)
+        if (!string.IsNullOrEmpty(currentMatchId) && notify)
         {
             matchmaking.SendLeaveMatch(currentMatchId);
         }
 
+        yield return new WaitForSeconds(0.2f);
+
+        if (gameServer != null) 
+        {
+            gameServer.ForceDisconnect(); 
+        }
+
         lobbyPanel.SetActive(false);
-        remoteReadyStates.Clear();
+        
+        readyPlayerIds.Clear(); 
+        
         playerIdsToNames.Clear();
         amIReady = false;
         currentMatchId = "";
 
-        var buscador = FindFirstObjectByType<AutoPlayerSearch>();
-        if (buscador) 
-        { 
-            buscador.gameObject.SetActive(true); 
-            Invoke(nameof(RequestListLate), 1.0f);
-        }
-        else SceneManager.LoadScene("Online");
+        SceneManager.LoadScene("Online");
     }
 
-    private void RequestListLate()
-    {
-        if (this == null) return;
-        var buscador = FindFirstObjectByType<AutoPlayerSearch>();
-        if (buscador) buscador.RequestPlayerList();
-    }
+    // --- MENSAJES Y PING ---
 
     private void RefreshPlayerList() 
     { 
         if(gameServer != null && gameServer.isLoggedIn) 
             gameServer.SendWebSocketMessage("{\"event\": \"online-players\"}"); 
     }
-
-    // --- MENSAJES DEL SERVIDOR ---
 
     private void HandleServerMessage(string jsonMessage)
     {
@@ -205,8 +210,6 @@ public class LobbyManager : MonoBehaviour
         if (jsonMessage.Contains("close-match")) QuitLobby(false);
     }
 
-    // --- PING / READY ---
-
     private void ToggleReady(PlayerRowUI rowUI)
     {
         amIReady = !amIReady; 
@@ -223,29 +226,28 @@ public class LobbyManager : MonoBehaviour
 
     private void HandlePingReceived(string fullJson)
     {
-        string senderId = ExtractValue(fullJson, "playerId");
-        
-        // Si no soy yo, es el rival
-        if (senderId != gameServer.playerName)
+        try 
         {
-            // Traducimos ID a Nombre
-            if (playerIdsToNames.ContainsKey(senderId))
+            PingRoot ping = JsonUtility.FromJson<PingRoot>(fullJson);
+            
+            if (ping != null && ping.data != null)
             {
-                string rivalName = playerIdsToNames[senderId];
+                string senderId = ping.data.playerId;
                 
-                if (remoteReadyStates.ContainsKey(rivalName))
-                    remoteReadyStates[rivalName] = true;
-                else
-                    remoteReadyStates.Add(rivalName, true);
-
-                RefreshReadyUI();
-                CheckIfAllReady();
+                if (!string.IsNullOrEmpty(senderId) && senderId != gameServer.playerName)
+                {
+                    if (!readyPlayerIds.Contains(senderId))
+                    {
+                        readyPlayerIds.Add(senderId);
+                    }
+                    RefreshReadyUI();
+                    CheckIfAllReady();
+                }
             }
-            else
-            {
-                // Si no tenemos el nombre, refrescamos lista
-                RefreshPlayerList();
-            }
+        }
+        catch (Exception e) 
+        {
+            Debug.LogError("Error leyendo ping: " + e.Message);
         }
     }
 
@@ -257,7 +259,7 @@ public class LobbyManager : MonoBehaviour
         } catch {}
     }
 
-    // --- ACTUALIZACIÓN DE UI ---
+    // --- UI ---
 
     public void UpdateLobbyUI(List<PlayerData> remotePlayers)
     {
@@ -280,20 +282,20 @@ public class LobbyManager : MonoBehaviour
             if (player.name == gameServer.playerName) continue;
             if (player.id != myOpponentId && matchmaking.GetCurrentMatchId() == "") continue; 
             
-            // Guardamos ID -> Nombre para el Ping
             if (!playerIdsToNames.ContainsKey(player.id))
-            {
                 playerIdsToNames.Add(player.id, player.name);
-            }
 
-            bool isRemoteReady = remoteReadyStates.ContainsKey(player.name) && remoteReadyStates[player.name];
+            bool isRemoteReady = readyPlayerIds.Contains(player.id);
             string statusString = isRemoteReady ? "Listo" : "Esperando...";
 
             CreateRow(player.name, player.status, false, statusString);
             
+            var rowObj = listContainer.GetChild(listContainer.childCount - 1);
+            rowObj.name = player.id; 
+
             if (isRemoteReady)
             {
-                var row = listContainer.GetChild(listContainer.childCount - 1).GetComponent<PlayerRowUI>();
+                var row = rowObj.GetComponent<PlayerRowUI>();
                 if (row) {
                     row.readyButton.GetComponent<Image>().color = Color.green;
                     row.buttonText.text = "Listo";
@@ -325,9 +327,11 @@ public class LobbyManager : MonoBehaviour
     {
         foreach (Transform child in listContainer)
         {
-            var row = child.GetComponent<PlayerRowUI>();
-            foreach(var kvp in remoteReadyStates) {
-                if (row.infoText.text.Contains(kvp.Key) && kvp.Value == true) {
+            string rowId = child.name;
+            if (readyPlayerIds.Contains(rowId))
+            {
+                var row = child.GetComponent<PlayerRowUI>();
+                if (row) {
                     row.readyButton.GetComponent<Image>().color = Color.green;
                     row.buttonText.text = "Listo";
                 }
@@ -364,16 +368,5 @@ public class LobbyManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.0f);
         SceneManager.LoadScene(gameSceneName);
-    }
-
-    private string ExtractValue(string json, string key) {
-        try {
-            string pattern = $"\"{key}\""; 
-            int keyIdx = json.IndexOf(pattern);
-            if (keyIdx == -1) return "";
-            int valStart = json.IndexOf("\"", keyIdx + pattern.Length + 1);
-            int valEnd = json.IndexOf("\"", valStart + 1);
-            return json.Substring(valStart + 1, valEnd - valStart - 1);
-        } catch { return ""; }
     }
 }

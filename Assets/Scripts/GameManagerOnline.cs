@@ -18,9 +18,12 @@ public class GameManagerOnline : GameManagerNiveles
 
     protected override void Start() 
     {
+        
         multiplicadorGlobal = 1.0f; 
         gameServer = GameServerConnection.Instance;
         matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
+        vidasActuales = vidas;
+        ActualizarVidasUI();
 
         if (gameServer == null || matchmaking == null)
         {
@@ -171,6 +174,39 @@ public class GameManagerOnline : GameManagerNiveles
         } else {
             SceneManager.LoadScene("Online"); 
         }  
+    }
+
+    protected override IEnumerator SpawnLoop() 
+    {
+        while (jugando) 
+        {
+            float esperaSpawn = UnityEngine.Random.Range(minIntervaloSpawn, maxIntervaloSpawn);
+            
+            yield return new WaitForSeconds(esperaSpawn / multiplicadorGlobal);
+
+            if (!jugando) continue;
+
+            int fennecsActivosCount = 0;
+            foreach (var fennec in fennecs) {
+                if (fennec.EstaOcupado()) fennecsActivosCount++;
+            }
+
+            if (fennecsActivosCount < maxFennecsActivos) {
+                List<int> fennecsDisponibles = new List<int>();
+                for (int i = 0; i < fennecs.Count; i++) {
+                    if (!fennecs[i].EstaOcupado()) fennecsDisponibles.Add(i);
+                }
+
+                if (fennecsDisponibles.Count > 0) {
+                    int indice = fennecsDisponibles[UnityEngine.Random.Range(0, fennecsDisponibles.Count)];
+                    
+                    TipoDeTopo tipo = TipoDeTopo.Normal;
+                    if (UnityEngine.Random.Range(0f, 100f) <= chanceTopoEspecial) tipo = TipoDeTopo.Especial;
+                    
+                    fennecs[indice].ActivarFennec(this, indice, tipo);
+                }
+            }
+        }
     }
 }
 
