@@ -8,7 +8,11 @@ using UnityEngine.UI;
 
 public class GameManagerNiveles : MonoBehaviour 
 {
-    public enum TipoDeTopo { Normal, Especial }
+    public enum TipoDeTopo { Normal, Especial, Desventaja}
+
+    [Header("Titulos finales")]
+    [SerializeField] protected GameObject tituloVictoria;
+    [SerializeField] protected GameObject tituloGameOver;
 
     [Header("Referencias de Fennecs")]
     [SerializeField] protected List<movimientosNiveles> fennecs; // protected para que el hijo lo vea
@@ -19,11 +23,13 @@ public class GameManagerNiveles : MonoBehaviour
     [SerializeField] protected float minIntervaloSpawn = 0.8f; 
     [SerializeField] protected float maxIntervaloSpawn = 1.5f; 
     [Range(0, 100)] [SerializeField] protected float chanceTopoEspecial = 15f; 
+    [Range(0, 100)] [SerializeField] protected float chanceTopoDesventaja = 10f;
 
     [Header("Valores de Puntuación")]
     [SerializeField] protected int puntosPorTopoNormal = 1;
     [SerializeField] protected int puntosPorTopoEspecial = 5;
     [SerializeField] protected float tiempoExtraPorEspecial = 3f;
+    [SerializeField] protected int puntosPorTopoDesventaja = -3;
 
     [Header("UI Objects")]
     [SerializeField] protected TextMeshProUGUI textoPuntaje;
@@ -133,8 +139,14 @@ public class GameManagerNiveles : MonoBehaviour
                 if (fennecsDisponibles.Count > 0) {
                     int indice = fennecsDisponibles[UnityEngine.Random.Range(0, fennecsDisponibles.Count)];
                     
+                    float azar = UnityEngine.Random.Range(0f, 100f);
                     TipoDeTopo tipo = TipoDeTopo.Normal;
-                    if (UnityEngine.Random.Range(0f, 100f) <= chanceTopoEspecial) tipo = TipoDeTopo.Especial;
+
+                    if (azar <= chanceTopoEspecial){ 
+                        tipo = TipoDeTopo.Especial;
+                    }else if(azar < chanceTopoEspecial + chanceTopoDesventaja){
+                        tipo = TipoDeTopo.Desventaja;
+                    }
                     
                     // Al ser el padre, pasamos 'this'. El hijo también pasará 'this' y funcionará por herencia.
                     fennecs[indice].ActivarFennec(this, indice, tipo);
@@ -148,7 +160,9 @@ public class GameManagerNiveles : MonoBehaviour
 
         if (puntosDoblesActivo) {
             timerPuntosDobles -= Time.deltaTime;
-            if (timerPuntosDobles <= 0) puntosDoblesActivo = false;
+            if (timerPuntosDobles <= 0) {
+                puntosDoblesActivo = false;        
+                }
         }
 
         tiempoRestante -= Time.deltaTime;
@@ -157,8 +171,30 @@ public class GameManagerNiveles : MonoBehaviour
         if (tiempoRestante <= 0) {
             tiempoRestante = 0;
             actualizarTextoTiempo(); 
-            gameOver();
+            if(vidasActuales > 0)
+            {
+                NivelCompletado();
+            }
+            else
+            {
+                gameOver(false);
+            }
+
         }
+    }
+
+    public void NivelCompletado()
+    {
+        Debug.Log("¡Nivel Completado!");
+        UnlockNewLevel();
+        jugando = false; 
+        StopAllCoroutines();
+        for(int i = 0; i < fennecs.Count; i++) {
+            fennecs[i].DetenerJuego();
+        }
+        monedasGanadasEnNivel = calcularMonedas(puntaje);
+        guardarMonedas(monedasGanadasEnNivel);
+        gameOver(true);
     }
 
     public void ActivarPuntosDobles(float duracion) {
@@ -169,10 +205,17 @@ public class GameManagerNiveles : MonoBehaviour
     public virtual void TopoGolpeado(int indiceFennec, TipoDeTopo tipo) {
         if (!jugando) return;
 
-        int puntos = (tipo == TipoDeTopo.Especial) ? puntosPorTopoEspecial : puntosPorTopoNormal;
-
-        if (tipo == TipoDeTopo.Especial) {
+        int puntos = 0;
+        if (tipo == TipoDeTopo.Normal) {
+            puntos = puntosPorTopoNormal;
+        }
+        else if (tipo == TipoDeTopo.Especial) {
+            puntos = puntosPorTopoEspecial;
             AgregarTiempo(tiempoExtraPorEspecial);
+        }
+        else if (tipo == TipoDeTopo.Desventaja){
+            puntos = puntosPorTopoDesventaja;
+            Debug.Log("¡Cuidado! Has golpeado un topo de desventaja. Puntos reducidos.");
         }
 
         if (puntosDoblesActivo) puntos *= 2;
@@ -184,6 +227,10 @@ public class GameManagerNiveles : MonoBehaviour
     public virtual void Perdido(int indiceFennec, TipoDeTopo tipo) { 
         if (!jugando) return;
 
+        if(tipo == TipoDeTopo.Desventaja){
+            return; // No pierde vida si es un topo de desventaja
+        }
+
         vidasActuales--;
         int indiceCorazon = Mathf.Clamp(vidasActuales, 0, corazonesUI.Count - 1);
 
@@ -193,7 +240,7 @@ public class GameManagerNiveles : MonoBehaviour
 
         if (vidasActuales <= 0) {
             vidasActuales = 0;
-            gameOver();
+            gameOver(false);
         }
     }
 
@@ -203,11 +250,17 @@ public class GameManagerNiveles : MonoBehaviour
         actualizarTextoTiempo();
     }
 
-    public virtual void gameOver() { 
+    public virtual void gameOver(bool esVictoria) { 
         jugando = false;
         StopAllCoroutines(); 
         for(int i = 0; i < fennecs.Count; i++) fennecs[i].DetenerJuego();
         
+        if (canvasPowerUps != null) canvasPowerUps.SetActive(false);
+        if (botonPuntosDobles != null) botonPuntosDobles.SetActive(false);
+
+        if (tituloGameOver != null) tituloGameOver.SetActive(!esVictoria); // Si NO ganó, activamos Game Over
+        if (tituloVictoria != null) tituloVictoria.SetActive(esVictoria);
+
         monedasGanadasEnNivel = calcularMonedas(puntaje);
         guardarMonedas(monedasGanadasEnNivel);
         mostrarGameOver();
@@ -273,11 +326,19 @@ public class GameManagerNiveles : MonoBehaviour
         }
     }
 
-    protected void UnlockNewLevel(){
-        if(SceneManager.GetActiveScene().buildIndex >= PlayerPrefs.GetInt("ReachedIndex")){
-            PlayerPrefs.SetInt("ReachedIndex", SceneManager.GetActiveScene().buildIndex + 1);
-            PlayerPrefs.SetInt("UnlockedLevel", PlayerPrefs.GetInt("UnlockedLevel", 1) + 1);
+    protected void UnlockNewLevel()
+    {
+        int indiceEscenaActual = SceneManager.GetActiveScene().buildIndex;
+        
+        int nivelDesbloqueadoActual = PlayerPrefs.GetInt("UnlockedLevel", 1);
+        
+        int nuevoNivelDesbloqueado = indiceEscenaActual;
+
+        if (nuevoNivelDesbloqueado > nivelDesbloqueadoActual)
+        {
+            PlayerPrefs.SetInt("UnlockedLevel", nuevoNivelDesbloqueado);
             PlayerPrefs.Save();
+            Debug.Log("Progreso guardado. Nivel desbloqueado índice: " + nuevoNivelDesbloqueado);
         }
     }
 

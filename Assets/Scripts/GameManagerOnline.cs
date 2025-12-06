@@ -62,7 +62,7 @@ public class GameManagerOnline : GameManagerNiveles
         if (tiempoRestante <= 0) {
             tiempoRestante = 0;
             actualizarTextoTiempo(); 
-            gameOver();
+            gameOver(false);
         }
 
     }
@@ -145,9 +145,9 @@ public class GameManagerOnline : GameManagerNiveles
     public override void pausar() { if (jugando) { juegopausado = true; menuPausa.SetActive(true); } }
     public override void Reanudar() { juegopausado = false; menuPausa.SetActive(false); }
     
-    public override void gameOver()
+    public override void gameOver(bool esVictoria)
     {
-        base.gameOver();
+        base.gameOver(esVictoria);
         if (matchmaking != null && !string.IsNullOrEmpty(currentMatchId))
             matchmaking.SendFinishMatch(currentMatchId, gameServer.playerName);
     }

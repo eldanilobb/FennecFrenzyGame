@@ -12,6 +12,9 @@ public class movimientosNiveles : MonoBehaviour
     [Header("Sprites Especiales")]
     [SerializeField] private Sprite FENNEC_ESPECIAL;
     [SerializeField] private Sprite FENNEC_ESPECIAL_GOLPEADO;
+
+    [SerializeField] private Sprite FENNEC_DESVENTAJA;
+    [SerializeField] private Sprite FENNEC_DESVENTAJA_GOLPEADO;
     
     // <-- CAMBIO: Estas son las alturas DENTRO del hoyo
     [Header("Alturas de Movimiento (Local)")]
@@ -62,9 +65,13 @@ public class movimientosNiveles : MonoBehaviour
         {
             spriteVisible.sprite = FENNEC_NORMAL;
         }
-        else
+        else if(tipoActual == GameManagerNiveles.TipoDeTopo.Especial)
         {
             spriteVisible.sprite = FENNEC_ESPECIAL;
+        }
+        else if(tipoActual == GameManagerNiveles.TipoDeTopo.Desventaja)
+        {
+            spriteVisible.sprite = FENNEC_DESVENTAJA;
         }
         
         golpeable = true;
@@ -126,9 +133,12 @@ public class movimientosNiveles : MonoBehaviour
             {
                 spriteVisible.sprite = FENNEC_NORMAL_GOLPEADO;
             }
-            else
+            else if(tipoActual == GameManagerNiveles.TipoDeTopo.Especial)
             {
                 spriteVisible.sprite = FENNEC_ESPECIAL_GOLPEADO;
+            }else if(tipoActual == GameManagerNiveles.TipoDeTopo.Desventaja)
+            {
+                spriteVisible.sprite = FENNEC_DESVENTAJA_GOLPEADO;
             }
 
             StopAllCoroutines(); 
