@@ -149,7 +149,8 @@ public class GameManagerOnline : GameManagerNiveles
     public override void Reanudar() { juegopausado = false; menuPausa.SetActive(false); }
     
     public override void gameOver(bool esVictoria)
-    {
+    {   
+        if(menuPausa != null) menuPausa.SetActive(false);
         base.gameOver(esVictoria);
         if (matchmaking != null && !string.IsNullOrEmpty(currentMatchId))
             matchmaking.SendFinishMatch(currentMatchId, gameServer.playerName);
