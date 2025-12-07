@@ -258,6 +258,12 @@ public class GameManagerNiveles : MonoBehaviour
         if (canvasPowerUps != null) canvasPowerUps.SetActive(false);
         if (botonPuntosDobles != null) botonPuntosDobles.SetActive(false);
 
+        if(corazonesUI != null) {
+            foreach (var corazon in corazonesUI) {
+                corazon.gameObject.SetActive(false);
+            }
+        }
+
         if (tituloGameOver != null) tituloGameOver.SetActive(!esVictoria); // Si NO ganó, activamos Game Over
         if (tituloVictoria != null) tituloVictoria.SetActive(esVictoria);
 
