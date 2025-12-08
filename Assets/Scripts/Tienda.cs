@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class Tienda : MonoBehaviour
 {
@@ -8,17 +8,17 @@ public class Tienda : MonoBehaviour
     public int time_up;
     public int inmunidad;
     public int frenzy_time;
-    public Text moneda_text;
-    public Text pw_x2_text;
-    // Optional UI texts for other power-ups (assign in Inspector if desired)
-    public Text time_up_text;
-    public Text inmunidad_text;
-    public Text frenzy_time_text;
+    public TextMeshProUGUI moneda_text;
+    public TextMeshProUGUI pw_x2_text;
+    public TextMeshProUGUI time_up_text;
+    public TextMeshProUGUI inmunidad_text;
+    public TextMeshProUGUI frenzy_time_text;
 
     void Start()
     {
         // Load saved values (if any)
         Moneda = PlayerPrefs.GetInt("MonedasTotales", 0);
+        if (moneda_text != null) moneda_text.text = Moneda.ToString();
         pw_x2 = PlayerPrefs.GetInt("pw_x2", 0);
         time_up = PlayerPrefs.GetInt("time_up", 0);
         inmunidad = PlayerPrefs.GetInt("inmunidad", 0);
