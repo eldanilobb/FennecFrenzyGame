@@ -67,8 +67,8 @@ public class Tienda : MonoBehaviour
                 PlayerPrefs.SetInt("MonedasTotales", monedasActuales);
 
                 // Increase time_up and save
-                time_up += 1;
-                PlayerPrefs.SetInt("time_up", time_up);
+                frenzy_time += 1;
+                PlayerPrefs.SetInt("frenzy_time", frenzy_time);
                 PlayerPrefs.Save();
 
                 // Update local cached value and UI if assigned
@@ -76,6 +76,59 @@ public class Tienda : MonoBehaviour
                 if (moneda_text != null) moneda_text.text = Moneda.ToString();
                 if (time_up_text != null) time_up_text.text = time_up.ToString();
             }
+        else
+        {
+            print("No tienes suficientes monedas");
+        }
+    }
+
+
+        public void buy_inmunidad()
+    {
+        int monedasActuales = PlayerPrefs.GetInt("MonedasTotales", 0);
+        if (monedasActuales >= 30)
+        {
+            monedasActuales -= 30;
+            // Save updated currency to PlayerPrefs (single source of truth)
+            PlayerPrefs.SetInt("MonedasTotales", monedasActuales);
+
+            // Increase power-up count and save
+            inmunidad += 1;
+            PlayerPrefs.SetInt("inmunidad", inmunidad);
+            PlayerPrefs.Save();
+
+            // Update local cached value and UI if assigned
+            Moneda = monedasActuales;
+            if (moneda_text != null) moneda_text.text = Moneda.ToString();
+            if (inmunidad_text != null) inmunidad_text.text = inmunidad.ToString();
+        }
+        else
+        {
+            print("No tienes suficientes monedas");
+        }
+    }
+
+
+
+            public void buy_frenzy_time()
+    {
+        int monedasActuales = PlayerPrefs.GetInt("MonedasTotales", 0);
+        if (monedasActuales >= 10)
+        {
+            monedasActuales -= 10;
+            // Save updated currency to PlayerPrefs (single source of truth)
+            PlayerPrefs.SetInt("MonedasTotales", monedasActuales);
+
+            // Increase power-up count and save
+            frenzy_time += 1;
+            PlayerPrefs.SetInt("frenzy_time", frenzy_time);
+            PlayerPrefs.Save();
+
+            // Update local cached value and UI if assigned
+            Moneda = monedasActuales;
+            if (moneda_text != null) moneda_text.text = Moneda.ToString();
+            if (frenzy_time_text != null) frenzy_time_text.text = frenzy_time.ToString();
+        }
         else
         {
             print("No tienes suficientes monedas");
