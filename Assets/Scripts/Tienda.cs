@@ -1,8 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class Tienda : MonoBehaviour
 {
+    AudioManager audioManager;
     public int Moneda;
     public int pw_x2;
     public int time_up;
@@ -14,6 +18,11 @@ public class Tienda : MonoBehaviour
     public TextMeshProUGUI inmunidad_text;
     public TextMeshProUGUI frenzy_time_text;
 
+    private void Awake()
+    {
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
+
+    }
     void Start()
     {
         // Load saved values (if any)
@@ -134,4 +143,24 @@ public class Tienda : MonoBehaviour
             print("No tienes suficientes monedas");
         }
     }
+
+        public void Salir(){
+        if (audioManager != null && audioManager.sfx != null)
+        {
+            audioManager.PlaySFX(audioManager.sfx); 
+
+            StartCoroutine(DelaySceneLoad(audioManager.sfx.length));
+        }
+        else
+        {
+            SceneManager.LoadScene("LevelSelection");
+        }
+    }
+
+    private IEnumerator DelaySceneLoad(float soundDuration)
+    {
+        yield return new WaitForSeconds(soundDuration);
+        SceneManager.LoadScene("LevelSelection");
+    }
+
 }
