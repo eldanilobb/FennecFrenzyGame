@@ -10,11 +10,26 @@ public class Tienda : MonoBehaviour
     public int frenzy_time;
     public Text moneda_text;
     public Text pw_x2_text;
+    // Optional UI texts for other power-ups (assign in Inspector if desired)
+    public Text time_up_text;
+    public Text inmunidad_text;
+    public Text frenzy_time_text;
 
     void Start()
     {
+        // Load saved values (if any)
         Moneda = PlayerPrefs.GetInt("MonedasTotales", 0);
-        moneda_text.text = Moneda.ToString();
+        pw_x2 = PlayerPrefs.GetInt("pw_x2", 0);
+        time_up = PlayerPrefs.GetInt("time_up", 0);
+        inmunidad = PlayerPrefs.GetInt("inmunidad", 0);
+        frenzy_time = PlayerPrefs.GetInt("frenzy_time", 0);
+
+        // Update UI if assigned
+        if (moneda_text != null) moneda_text.text = Moneda.ToString();
+        if (pw_x2_text != null) pw_x2_text.text = pw_x2.ToString();
+        if (time_up_text != null) time_up_text.text = time_up.ToString();
+        if (inmunidad_text != null) inmunidad_text.text = inmunidad.ToString();
+        if (frenzy_time_text != null) frenzy_time_text.text = frenzy_time.ToString();
     }
 
     public void buy_pw_x2()
@@ -22,11 +37,40 @@ public class Tienda : MonoBehaviour
         if(Moneda >= 20)
         {
             Moneda -= 20;
+            // Update currency and save
             PlayerPrefs.SetInt("MonedasTotales", Moneda);
-            moneda_text.text = Moneda.ToString();
 
+            // Increase power-up count and save
             pw_x2 += 1;
-            pw_x2_text.text = pw_x2.ToString();
+            PlayerPrefs.SetInt("pw_x2", pw_x2);
+            PlayerPrefs.Save();
+
+            // Update UI if assigned
+            if (moneda_text != null) moneda_text.text = Moneda.ToString();
+            if (pw_x2_text != null) pw_x2_text.text = pw_x2.ToString();
+        }
+        else
+        {
+            print("No tienes suficientes monedas");
+        }
+    }
+
+        public void buy_time_up()
+    {
+        if(Moneda >= 15)
+        {
+            Moneda -= 15;
+                // Update currency and save
+                PlayerPrefs.SetInt("MonedasTotales", Moneda);
+
+                // Increase time_up and save
+                time_up += 1;
+                PlayerPrefs.SetInt("time_up", time_up);
+                PlayerPrefs.Save();
+
+                // Update UI if assigned
+                if (moneda_text != null) moneda_text.text = Moneda.ToString();
+                if (time_up_text != null) time_up_text.text = time_up.ToString();
         }
         else
         {
