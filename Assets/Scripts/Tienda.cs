@@ -34,18 +34,20 @@ public class Tienda : MonoBehaviour
 
     public void buy_pw_x2()
     {
-        if(Moneda >= 20)
+        int monedasActuales = PlayerPrefs.GetInt("MonedasTotales", 0);
+        if (monedasActuales >= 20)
         {
-            Moneda -= 20;
-            // Update currency and save
-            PlayerPrefs.SetInt("MonedasTotales", Moneda);
+            monedasActuales -= 20;
+            // Save updated currency to PlayerPrefs (single source of truth)
+            PlayerPrefs.SetInt("MonedasTotales", monedasActuales);
 
             // Increase power-up count and save
             pw_x2 += 1;
             PlayerPrefs.SetInt("pw_x2", pw_x2);
             PlayerPrefs.Save();
 
-            // Update UI if assigned
+            // Update local cached value and UI if assigned
+            Moneda = monedasActuales;
             if (moneda_text != null) moneda_text.text = Moneda.ToString();
             if (pw_x2_text != null) pw_x2_text.text = pw_x2.ToString();
         }
@@ -57,21 +59,23 @@ public class Tienda : MonoBehaviour
 
         public void buy_time_up()
     {
-        if(Moneda >= 15)
-        {
-            Moneda -= 15;
-                // Update currency and save
-                PlayerPrefs.SetInt("MonedasTotales", Moneda);
+            int monedasActuales = PlayerPrefs.GetInt("MonedasTotales", 0);
+            if (monedasActuales >= 15)
+            {
+                monedasActuales -= 15;
+                // Save updated currency to PlayerPrefs (single source of truth)
+                PlayerPrefs.SetInt("MonedasTotales", monedasActuales);
 
                 // Increase time_up and save
                 time_up += 1;
                 PlayerPrefs.SetInt("time_up", time_up);
                 PlayerPrefs.Save();
 
-                // Update UI if assigned
+                // Update local cached value and UI if assigned
+                Moneda = monedasActuales;
                 if (moneda_text != null) moneda_text.text = Moneda.ToString();
                 if (time_up_text != null) time_up_text.text = time_up.ToString();
-        }
+            }
         else
         {
             print("No tienes suficientes monedas");
