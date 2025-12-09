@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a7b6ad6b376c33042beb716e32ca45ba
+guid: 28b8b25c2b8b476479735254ded15bbc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5275336889573386210
-    second: FENNECCGOLPEADO 1_0
+      213: 1928857060442353996
+    second: FENNECCGOLPEADORESIZE 1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: FENNECCGOLPEADO 1_0
+      name: FENNECCGOLPEADORESIZE 1_0
       rect:
         serializedVersion: 2
-        x: 300
-        y: 12
-        width: 669
-        height: 750
+        x: 10
+        y: 5
+        width: 222
+        height: 247
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e18d6728c0d3ac6b0800000000000000
-      internalID: -5275336889573386210
+      spriteID: c41bb26e64da4ca10800000000000000
+      internalID: 1928857060442353996
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      FENNECCGOLPEADO 1_0: -5275336889573386210
+      FENNECCGOLPEADORESIZE 1_0: 1928857060442353996
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

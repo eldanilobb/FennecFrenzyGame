@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 29252494e0aa9584cb6eb449892a725a
+guid: 4c2d175e697565e4dbd50d66840772fd
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6520774150351718547
-    second: FENNECREAL_0
+      213: -799755880490177297
+    second: FENNECREALRESIZE_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,30 +109,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: iOS
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: FENNECREAL_0
+      name: FENNECREALRESIZE_0
       rect:
         serializedVersion: 2
-        x: 249
-        y: 449
-        width: 2631
-        height: 2366
+        x: 19
+        y: 36
+        width: 224
+        height: 202
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 398834c8a817e7a50800000000000000
-      internalID: 6520774150351718547
+      spriteID: fec6a549342b6e4f0800000000000000
+      internalID: -799755880490177297
       vertices: []
       indices: 
       edges: []
@@ -161,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      FENNECREAL_0: 6520774150351718547
+      FENNECREALRESIZE_0: -799755880490177297
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
