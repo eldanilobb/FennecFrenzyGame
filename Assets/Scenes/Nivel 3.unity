@@ -2963,7 +2963,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   musicsource: {fileID: 1271881080}
   sfxsource: {fileID: 2074977731}
-  backgroundMusic: {fileID: 8300000, guid: 03e7593a223e21e49b5c9393cf91bf4d, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: 24ee2f7e2de0cdd4c9ebe9e54be1bb29, type: 3}
   sfx: {fileID: 8300000, guid: ecefa54712293a241b665c66d430b5bb, type: 3}
   sfx_button: {fileID: 0}
 --- !u!4 &1393210278
