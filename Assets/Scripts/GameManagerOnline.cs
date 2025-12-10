@@ -18,7 +18,7 @@ public class GameManagerOnline : GameManagerNiveles
 
     protected override void Start() 
     {
-        
+        if (textoTiempo != null) textoTiempo.gameObject.SetActive(false);
         multiplicadorGlobal = 1.0f; 
         gameServer = GameServerConnection.Instance;
         matchmaking = FindFirstObjectByType<GameServerMatchmaking>();
@@ -58,16 +58,6 @@ public class GameManagerOnline : GameManagerNiveles
     protected override void Update()
     {
         if (!jugando) return;
-
-        tiempoRestante -= Time.deltaTime;
-        actualizarTextoTiempo(); 
-        
-        if (tiempoRestante <= 0) {
-            tiempoRestante = 0;
-            actualizarTextoTiempo(); 
-            gameOver(false);
-        }
-
     }
 
     public override void TopoGolpeado(int indiceFennec, TipoDeTopo tipo)
@@ -113,9 +103,18 @@ public class GameManagerOnline : GameManagerNiveles
         {
             GameSignal signal = JsonUtility.FromJson<GameSignal>(jsonPayload);
 
-            if (signal != null && signal.type == "attack")
+            if (signal != null)
             {
-                iniciarCastigoVelocidad();
+                if (signal.type == "attack")
+                {
+                    iniciarCastigoVelocidad();
+                }
+                
+                else if (signal.close == true || signal.type == "game-close")
+                {
+                    Debug.Log("El rival abandonó la partida.");
+                    gameOver(true); 
+                }
             }
         }
         catch (System.Exception e)
@@ -134,7 +133,7 @@ public class GameManagerOnline : GameManagerNiveles
     {
         if (avisoAtaqueUI != null) avisoAtaqueUI.SetActive(true);
         
-        multiplicadorGlobal = 3.0f; 
+        multiplicadorGlobal = 2.2f; 
         
         yield return new WaitForSeconds(duracionCastigoLocal);
 
@@ -215,4 +214,5 @@ public class GameManagerOnline : GameManagerNiveles
 public class GameSignal
 {
     public string type; 
+    public bool close;
 }
