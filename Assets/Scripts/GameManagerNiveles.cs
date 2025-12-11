@@ -264,7 +264,7 @@ public class GameManagerNiveles : MonoBehaviour
             }
         }
 
-        if (tituloGameOver != null) tituloGameOver.SetActive(!esVictoria); // Si NO ganó, activamos Game Over
+        if (tituloGameOver != null) tituloGameOver.SetActive(!esVictoria); 
         if (tituloVictoria != null) tituloVictoria.SetActive(esVictoria);
 
         monedasGanadasEnNivel = calcularMonedas(puntaje);

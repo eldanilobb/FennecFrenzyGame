@@ -42,8 +42,7 @@ public class LobbyManager : MonoBehaviour
     private bool isLobbyActive = false;
     private bool isStarting = false;
     private string currentMatchId = "";
-
-    // IDs de jugadores listos (Reemplaza al antiguo remoteReadyStates)
+    
     private HashSet<string> readyPlayerIds = new HashSet<string>();
     private Dictionary<string, string> playerIdsToNames = new Dictionary<string, string>();
 
@@ -92,8 +91,6 @@ public class LobbyManager : MonoBehaviour
         if (this == null || gameObject == null) return;
         OpenLobby();
     }
-
-    // --- CONEXIÓN AL LOBBY ---
 
     private void HandleMatchAccepted(string id, string status)
     {
@@ -151,8 +148,6 @@ public class LobbyManager : MonoBehaviour
         RefreshPlayerList();
     }
 
-    // --- SALIR DEL LOBBY ---
-
     public void QuitLobby(bool notifyRival = true)
     {
         StartCoroutine(RutinaSalidaSegura(notifyRival));
@@ -185,8 +180,6 @@ public class LobbyManager : MonoBehaviour
 
         SceneManager.LoadScene("Online");
     }
-
-    // --- MENSAJES Y PING ---
 
     private void RefreshPlayerList() 
     { 
@@ -259,14 +252,11 @@ public class LobbyManager : MonoBehaviour
         } catch {}
     }
 
-    // --- UI ---
-
-    public void UpdateLobbyUI(List<PlayerData> remotePlayers)
+   public void UpdateLobbyUI(List<PlayerData> remotePlayers)
     {
         if (listContainer == null) return;
         foreach (Transform child in listContainer) Destroy(child.gameObject);
 
-        // Fila Local
         string myStatusText = amIReady ? "Listo" : "No listo";
         CreateRow(gameServer.playerName, myGameName, true, myStatusText);
         if (amIReady && listContainer.childCount > 0)
@@ -275,12 +265,14 @@ public class LobbyManager : MonoBehaviour
              if(row) row.readyButton.GetComponent<Image>().color = Color.green;
         }
 
-        // Fila Rival
         string myOpponentId = matchmaking.GetCurrentOpponentId();
+        string currentMatch = matchmaking.GetCurrentMatchId();
+
         foreach (var player in remotePlayers)
         {
             if (player.name == gameServer.playerName) continue;
-            if (player.id != myOpponentId && matchmaking.GetCurrentMatchId() == "") continue; 
+
+            if (player.id != myOpponentId) continue; 
             
             if (!playerIdsToNames.ContainsKey(player.id))
                 playerIdsToNames.Add(player.id, player.name);

@@ -109,8 +109,7 @@ public class GameManagerOnline : GameManagerNiveles
                 {
                     iniciarCastigoVelocidad();
                 }
-                
-                else if (signal.close == true || signal.type == "game-close")
+                else if (signal.close == true || signal.type == "defeat")
                 {
                     Debug.Log("El rival abandonó la partida.");
                     gameOver(true); 
@@ -157,23 +156,56 @@ public class GameManagerOnline : GameManagerNiveles
 
     public override void IrAlMenu()
     {
-        if (matchmaking != null && !string.IsNullOrEmpty(currentMatchId))
+        StartCoroutine(RutinaSalidaCompleta());
+    }
+
+    private IEnumerator RutinaSalidaCompleta()
+    {
+        // Sonido de botón (si existe)
+        if (audioManager != null && audioManager.sfx_button != null) {
+            audioManager.PlaySFX(audioManager.sfx_button); 
+        }
+
+        if (!string.IsNullOrEmpty(currentMatchId))
         {
             string closePayload = $@"{{
                 ""event"": ""send-game-data"", 
-                ""data"": {{ ""matchId"": ""{currentMatchId}"", ""payload"": {{ ""type"": ""game-close"", ""close"": true }} }} 
+                ""data"": {{ 
+                    ""matchId"": ""{currentMatchId}"", 
+                    ""payload"": {{ 
+                        ""type"": ""defeat"", 
+                        ""close"": true 
+                    }} 
+                }} 
             }}";
             gameServer.SendWebSocketMessage(closePayload);
-            matchmaking.SendFinishMatch(currentMatchId, gameServer.playerName);
+        }
+
+        // Esperamos un momento para que el mensaje salga
+        yield return new WaitForSeconds(0.1f);
+
+        // 2. ENVIAR QUIT-MATCH AL SERVIDOR
+        if (!string.IsNullOrEmpty(currentMatchId))
+        {
             matchmaking.SendLeaveMatch(currentMatchId);
         }
-        
-        if (audioManager != null && audioManager.sfx_button != null) {
-            audioManager.PlaySFX(audioManager.sfx_button); 
-            StartCoroutine(DelaySceneLoad(audioManager.sfx_button.length, "Online"));
-        } else {
-            SceneManager.LoadScene("Online"); 
-        }  
+
+        // 3. OPCIÓN NUCLEAR: CORTAR CONEXIÓN
+        // Desconectamos forzosamente para que el servidor borre el estado "IN_MATCH"
+        if (gameServer != null)
+        {
+            gameServer.ForceDisconnect();
+        }
+
+        // 4. LIMPIEZA LOCAL
+        Time.timeScale = 1; 
+        currentMatchId = "";
+
+        // Esperamos un poco para asegurar que la desconexión ocurra
+        yield return new WaitForSeconds(0.2f);
+
+        // 5. CARGAR MENÚ
+        SceneManager.LoadScene("Online");
     }
 
     protected override IEnumerator SpawnLoop() 
