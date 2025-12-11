@@ -215,11 +215,23 @@ public class GameManagerNiveles : MonoBehaviour
         }
         else if (tipo == TipoDeTopo.Desventaja){
             puntos = puntosPorTopoDesventaja;
+            vidasActuales--;
+            int indiceCorazon = Mathf.Clamp(vidasActuales, 0, corazonesUI.Count - 1);
+            if (corazonesUI.Count > indiceCorazon && spriteCorazonVacio != null) {
+                corazonesUI[indiceCorazon].sprite = spriteCorazonVacio;
+            }
+            if (vidasActuales <= 0) {
+                vidasActuales = 0;
+                // Si cambiaste el nombre a FinalizarPartida usa ese, si no, usa gameOver()
+                gameOver(false); 
+                return; // Importante: Salimos de la función para no sumar puntos después
+            }
             Debug.Log("¡Cuidado! Has golpeado un topo de desventaja. Puntos reducidos.");
         }
 
-        if (puntosDoblesActivo) puntos *= 2;
 
+        if (puntosDoblesActivo) puntos *= 2;
+        if (puntaje < 0) puntaje = 0;
         puntaje += puntos;
         actualizarTextoPuntaje();
     }
