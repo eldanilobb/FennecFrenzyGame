@@ -44,6 +44,8 @@ public class GameManagerNiveles : MonoBehaviour
     public GameObject menuPausa;
     public GameObject canvasPowerUps;
     public GameObject botonPuntosDobles;
+    public GameObject botonInmunidad;
+    public GameObject botonFennecFrenzy;
 
     [Header("Sistema de Vidas Visual")]
     [SerializeField] protected int vidas = 3;
@@ -60,9 +62,13 @@ public class GameManagerNiveles : MonoBehaviour
     protected bool jugando = false;
     protected float timerSpawn = 0f; 
     protected int monedasGanadasEnNivel; 
-
+    
     public static bool juegopausado = false; 
+    protected bool InmunidadActiva = false;
+    protected float timerInmunidad = 0f;
 
+    protected bool frenzyActivo = false;
+    protected float timerFrenzy = 0f;
     protected AudioManager_Tutorial audioManager; 
 
     protected virtual void Awake(){ // virtual para poder extenderlo si hace falta
@@ -120,6 +126,10 @@ public class GameManagerNiveles : MonoBehaviour
                 continue; 
             }
 
+            if(frenzyActivo){
+                yield return null; 
+                continue; 
+            }
             float esperaSpawn = UnityEngine.Random.Range(minIntervaloSpawn, maxIntervaloSpawn);
             yield return new WaitForSeconds(esperaSpawn);
 
@@ -165,6 +175,20 @@ public class GameManagerNiveles : MonoBehaviour
                 }
         }
 
+        if (InmunidadActiva) {
+            timerInmunidad -= Time.deltaTime;
+            if (timerInmunidad <= 0) {
+                InmunidadActiva = false;        
+            }
+        }
+
+        if (frenzyActivo) {
+            timerFrenzy -= Time.deltaTime;
+            if (timerFrenzy <= 0) {
+                frenzyActivo = false;        
+            }
+        }
+
         tiempoRestante -= Time.deltaTime;
         actualizarTextoTiempo(); 
         
@@ -201,6 +225,24 @@ public class GameManagerNiveles : MonoBehaviour
         puntosDoblesActivo = true;
         timerPuntosDobles = duracion;
     }
+
+    public void ActivarInmunidad(float duracion) {
+        InmunidadActiva = true;
+        timerInmunidad = duracion;
+    }
+
+    public void ActivarFrenzy(float duracion) {
+        frenzyActivo = true;
+        timerFrenzy = duracion;
+
+        for (int i = 0; i < fennecs.Count; i++){
+            if (!fennecs[i].EstaOcupado()){
+                // Siempre aparecen como topo normal
+                fennecs[i].ActivarFennec(this, i, TipoDeTopo.Normal);
+            }
+        }
+    }
+
 
     public virtual void TopoGolpeado(int indiceFennec, TipoDeTopo tipo) {
         if (!jugando) return;
@@ -243,6 +285,8 @@ public class GameManagerNiveles : MonoBehaviour
             return; // No pierde vida si es un topo de desventaja
         }
 
+        if(InmunidadActiva) return;
+        if(frenzyActivo) return;
         vidasActuales--;
         int indiceCorazon = Mathf.Clamp(vidasActuales, 0, corazonesUI.Count - 1);
 
@@ -269,7 +313,8 @@ public class GameManagerNiveles : MonoBehaviour
         
         if (canvasPowerUps != null) canvasPowerUps.SetActive(false);
         if (botonPuntosDobles != null) botonPuntosDobles.SetActive(false);
-
+        if(botonInmunidad != null) botonInmunidad.SetActive(false);
+        
         if(corazonesUI != null) {
             foreach (var corazon in corazonesUI) {
                 corazon.gameObject.SetActive(false);
@@ -323,6 +368,8 @@ public class GameManagerNiveles : MonoBehaviour
         juegopausado = true;
         if(canvasPowerUps) canvasPowerUps.SetActive(false);
         if(botonPuntosDobles) botonPuntosDobles.SetActive(false);
+        if(botonInmunidad) botonInmunidad.SetActive(false);
+        if(botonFennecFrenzy) botonFennecFrenzy.SetActive(false);
         menuPausa.SetActive(true);
     }
 
@@ -331,6 +378,8 @@ public class GameManagerNiveles : MonoBehaviour
         juegopausado = false;
         if(canvasPowerUps) canvasPowerUps.SetActive(true);
         if(botonPuntosDobles) botonPuntosDobles.SetActive(true);
+        if(InmunidadActiva) botonInmunidad.SetActive(true);
+        if(botonFennecFrenzy) botonFennecFrenzy.SetActive(true);
         menuPausa.SetActive(false);
     }
 
